@@ -7,6 +7,7 @@ clipped to the municipio, then the mask + heightmap are built as usual.
 """
 from __future__ import annotations
 import json
+import os
 import subprocess
 import zipfile
 import numpy as np
@@ -105,7 +106,9 @@ def main():
     # taper the height down to the base over the last ~10 px of the boundary so
     # the cut edge is a clean rounded rim, not a cliff of triangular flaps
     taper = np.clip(distance_transform_edt(mask) / 10.0, 0, 1)
-    dem_s = gaussian_filter(dem, sigma=0.8)        # 5 m data -> barely touch it
+    # HEIGHT_SIGMA env smooths the displacement (e.g. for a streets overlay);
+    # default 0.8 keeps the full LiDAR detail
+    dem_s = gaussian_filter(dem, sigma=float(os.environ.get("HEIGHT_SIGMA", 0.8)))
     norm = ((dem_s - vmin) / (vmax - vmin)).clip(0, 1) * taper
     Image.fromarray((norm * 65535).astype(np.uint16)).save(C.HEIGHT_PNG)
 

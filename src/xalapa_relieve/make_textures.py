@@ -70,7 +70,22 @@ def main():
     dem = np.load(C.ELEV_NPY)
     mask = np.load(C.MASK_NPY)
     vmin, vmax = meta["elev_min"], meta["elev_max"]
-    alb = hypsometric(dem, vmin, vmax)
+    alb = hypsometric(dem, vmin, vmax).astype(np.float64)
+
+    # optionally bake the street network onto the surface (drapes in 3D)
+    if os.environ.get("STREETS") and (C.DATA / "roads_minor.npy").exists():
+        from scipy.ndimage import gaussian_filter, grey_dilation
+        minor = grey_dilation(np.load(C.DATA / "roads_minor.npy").astype(np.float64),
+                              size=(2, 2))
+        major = grey_dilation(np.load(C.DATA / "roads_major.npy").astype(np.float64),
+                              size=(4, 4))
+        road = gaussian_filter(np.maximum(minor * 0.78, major), sigma=0.7)
+        road = (np.clip(road, 0, 1) * (mask > 0))[..., None]
+        # streets read as a crisp dark engraving over the smooth relief
+        ink = np.array([16, 21, 32], dtype=np.float64)
+        alb = alb * (1 - 0.88 * road) + ink * (0.88 * road)
+
+    alb = alb.clip(0, 255).astype(np.uint8)
     Image.fromarray(alb, "RGB").save(C.ALBEDO_PNG)
 
     hs = hillshade(dem)[..., None]
