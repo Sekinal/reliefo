@@ -13,7 +13,8 @@ import numpy as np
 import rasterio
 import requests
 from PIL import Image
-from scipy.ndimage import gaussian_filter, binary_erosion
+from scipy.ndimage import (gaussian_filter, binary_erosion, binary_fill_holes,
+                           binary_opening, binary_closing, distance_transform_edt)
 from . import config as C
 
 INFO = "https://www.inegi.org.mx/app/geo2/elevacionesmex/getF10KDescarga.do"
@@ -83,9 +84,15 @@ def main():
         "-te", str(b.left), str(b.bottom), str(b.right), str(b.top),
         "-ts", str(W), str(H), str(mun_utm), str(mask_tif)])
     with rasterio.open(mask_tif) as ms:
-        mask = (ms.read(1) > 0).astype(np.uint8)
-    mask &= np.isfinite(dem).astype(np.uint8)
-    mask = binary_erosion(mask, iterations=3, border_value=0).astype(np.uint8)
+        mask = ms.read(1) > 0
+    mask &= np.isfinite(dem)
+    # tidy the municipio outline so the cut edge is clean (no pixel-scale
+    # spikes/flaps): fill holes, open/close away protrusions, smooth + re-bin
+    mask = binary_fill_holes(mask)
+    mask = binary_opening(mask, iterations=2)
+    mask = binary_closing(mask, iterations=2)
+    mask = gaussian_filter(mask.astype(float), sigma=3.0) > 0.5
+    mask = binary_erosion(mask, iterations=2).astype(np.uint8)
 
     inside = dem[mask == 1]
     vmin, vmax = float(np.nanmin(inside)), float(np.nanmax(inside))
@@ -95,8 +102,11 @@ def main():
 
     np.save(C.ELEV_NPY, dem)
     np.save(C.MASK_NPY, mask)
+    # taper the height down to the base over the last ~10 px of the boundary so
+    # the cut edge is a clean rounded rim, not a cliff of triangular flaps
+    taper = np.clip(distance_transform_edt(mask) / 10.0, 0, 1)
     dem_s = gaussian_filter(dem, sigma=0.8)        # 5 m data -> barely touch it
-    norm = ((dem_s - vmin) / (vmax - vmin)).clip(0, 1)
+    norm = ((dem_s - vmin) / (vmax - vmin)).clip(0, 1) * taper
     Image.fromarray((norm * 65535).astype(np.uint16)).save(C.HEIGHT_PNG)
 
     C.META_JSON.write_text(json.dumps(dict(
