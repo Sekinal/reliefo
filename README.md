@@ -13,8 +13,13 @@ high point of the city. Elevation range in frame: **663 – 1,596 m**.
 
 ## Data
 
-- **Elevation:** Copernicus DEM **GLO-30** (ESA), reprojected to UTM 14N and
-  resampled to a smooth 10 m (GDAL `/vsicurl` from the public AWS bucket).
+- **Elevation:** INEGI **Continuo de Elevaciones Mexicano (CEM 4.0), 15 m** —
+  the authoritative Mexican DEM, twice the resolution of the global GLO-30 —
+  pulled straight from INEGI's public GeoServer **WCS**
+  (`gaia.inegi.org.mx/geoserver/wcs`, coverage `cem4_workespace:cem15m_3857`)
+  and reprojected to UTM 14N. *(For a small area, resolution matters: 30 m
+  global data looks soft when blown up to poster size; 15 m is noticeably
+  crisper. INEGI also serves 5 m / 1.5 m LiDAR per chart for even more.)*
 - **Boundary:** INEGI **Marco Geoestadístico 2020** — Xalapa municipio
   (clave 30087), rasterised to a mask that cuts the Blender mesh.
 

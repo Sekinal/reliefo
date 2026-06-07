@@ -69,7 +69,7 @@ def main():
     by = rh - m
     tracked(d, (m, by - 30 * S), "Relieve sombreado · exageración vertical ×5",
             f(17 * S, "i"), SOFT, ls=2 * S)
-    tracked(d, (m, by), "DEM: Copernicus GLO-30 (ESA)   ·   2026",
+    tracked(d, (m, by), "DEM: INEGI · Continuo de Elevaciones Mexicano 4.0 (15 m)   ·   2026",
             f(17 * S, "l"), SOFT, ls=2 * S)
 
     img.save(C.FINAL_PNG, quality=95)
