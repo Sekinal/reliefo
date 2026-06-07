@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from scipy.ndimage import gaussian_filter
 from . import config as C
+from .make_textures import ramp, GAMMA
 
 INK = (38, 46, 56)
 SOFT = (96, 108, 122)
@@ -103,6 +104,32 @@ def label_zones(img, S):
     return img
 
 
+def color_legend(img, S, vmin, vmax):
+    """slim vertical elevation scale (same oslo ramp + gamma as the relief)."""
+    import math
+    lut = ramp(256)                                   # low -> high colours
+    m = int(70 * S)
+    bw, bh = int(22 * S), int(300 * S)
+    x0, y0 = img.width - m - bw, img.height - m - bh
+    col = np.array([lut[int(((1 - i / (bh - 1)) ** GAMMA) * 255)] for i in range(bh)])
+    bar = np.repeat(col[:, None, :], bw, axis=1).clip(0, 255).astype(np.uint8)
+    img.paste(Image.fromarray(bar, "RGB"), (x0, y0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([x0, y0, x0 + bw - 1, y0 + bh - 1],
+                outline=(208, 211, 216), width=max(1, int(S)))
+    tracked(d, (x0 + bw / 2, y0 - 34 * S), "ALTITUD", f(19 * S, "l"),
+            SOFT, ls=6 * S, anchor="ma")
+    fnt = f(17 * S, "l")
+    step = 300
+    for e in range(int(math.ceil(vmin / step) * step), int(vmax) + 1, step):
+        y = y0 + (1 - (e - vmin) / (vmax - vmin)) * bh
+        d.line([(x0 - 8 * S, y), (x0 - 1, y)], fill=SOFT, width=max(1, int(S)))
+        tracked(d, (x0 - 14 * S, y - fnt.size / 2), f"{e:,}".replace(",", " "),
+                fnt, SOFT, ls=1 * S, anchor="ra")
+    tracked(d, (x0 + bw / 2, y0 + bh + 12 * S), "m s. n. m.", f(13 * S, "i"),
+            SOFT, ls=1 * S, anchor="ma")
+
+
 def main():
     relief = Image.open(C.RENDER_PNG).convert("RGBA")
     rw, rh = relief.size
@@ -114,6 +141,9 @@ def main():
     if streets:
         img = warm_bloom(img, relief)
         img = label_zones(img, S)
+
+    meta = json.loads(C.META_JSON.read_text())
+    color_legend(img, S, meta["elev_min"], meta["elev_max"])
     d = ImageDraw.Draw(img)
 
     m = int(70 * S)
