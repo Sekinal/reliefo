@@ -1,0 +1,63 @@
+# Xalapa, Veracruz — the worked example.
+#
+# Reproduces the poster in this repo: INEGI 5 m LiDAR terrain, cut to the
+# municipio, oslo relief, glowing OSM street grid and DENUE-derived zone labels.
+# Paths are resolved relative to THIS file (examples/), hence the "../".
+#
+#   uv run reliefo build examples/xalapa.toml            # full 4K build
+#   uv run reliefo build examples/xalapa.toml --draft    # quick preview
+
+[paths]
+data = "../data"
+out  = "../output"
+
+[map]
+name     = "Xalapa"
+title    = "XALAPA"
+subtitle = "VERACRUZ · MÉXICO"
+bbox     = { west = -96.978, south = 19.478, east = -96.792, north = 19.606 }
+
+[boundary]
+# INEGI Marco Geoestadístico 2020 — Xalapa municipio (CVEGEO 30087).
+file = "../data/xalapa_mun.geojson"
+
+[dem]
+source        = "lidar"     # INEGI 5 m bare-earth terrain (sharpest available)
+res_m         = 5
+height_sigma  = 0.8
+edge_taper_px = 10
+# 1:10,000 INEGI chart codes covering the bbox (see README for how to find them)
+charts = [
+  "E14B27D1", "E14B27D2", "E14B27D3", "E14B27D4", "E14B37A1", "E14B37A2",
+  "E14B27E1", "E14B27E3", "E14B37B1", "E14B27E2", "E14B27E4", "E14B37B2",
+]
+
+[relief]
+palette      = "oslo"
+exaggeration = 4.2
+sun_azimuth  = 318
+sun_altitude = 42
+sun_energy   = 3.8
+cam_tilt     = 9
+
+[streets]
+enabled = true
+# Pre-extracted OSM lines for Xalapa. Omit `osm_file` to fetch live from Overpass.
+osm_file = "/home/ieqr/Desktop/research/denue_xalapa/data/osm/xalapa_lines_wide.gpkg"
+
+[labels]
+enabled   = true
+source    = "denue"
+cvemun    = "087"
+denue_csv = "/home/ieqr/Desktop/research/denue_xalapa/data/conjunto_de_datos/denue_inegi_30_.csv"
+# Curated, well-known zones (matched accent/-case-insensitively against DENUE):
+include = [
+  "Centro", "Las Ánimas", "El Castillo", "Las Trancas", "Revolución",
+  "Obrero Campesina", "Progreso Macuiltépetl", "Rafael Lucio", "Carolino Anaya",
+  "Veracruz", "El Mirador", "Badillo", "El Sumidero", "Encinal", "Campo de Tiro",
+]
+big = ["Centro", "Las Ánimas", "Las Trancas", "El Castillo"]
+
+[render]
+resolution = 4000
+samples    = 160

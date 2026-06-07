@@ -1,24 +1,53 @@
 [project]
-name = "xalapa-relieve"
-version = "0.1.0"
-description = "Clean monochrome shaded-relief poster of the Xalapa municipio, rendered in Blender from Copernicus GLO-30"
+name = "reliefo"
+version = "0.2.0"
+description = "Config-driven shaded-relief posters of any Mexican municipio, rendered in Blender from INEGI elevation data"
 readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
 dependencies = [
     "cmcrameri>=1.9",
-    "numpy>=2.4.6",
-    "pillow>=12.2.0",
-    "rasterio>=1.5.0",
-    "requests>=2.34.2",
-    "scipy>=1.17.1",
+    "httpx>=0.28",
+    "numpy>=2.4",
+    "pillow>=12.2",
+    "polars>=1.40",
+    "pydantic>=2.13",
+    "rasterio>=1.5",
+    "rich>=15.0",
+    "scipy>=1.17",
+    "typer>=0.12",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
 [project.scripts]
-xalapa-relieve = "xalapa_relieve.pipeline:main"
+reliefo = "reliefo.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/xalapa_relieve"]
+packages = ["src/reliefo"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+ignore = [
+    "E741",  # ambiguous names 'l'/'f' used deliberately in terse helpers
+    "B008",  # typer.Argument/Option in defaults is the idiomatic Typer pattern
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "ruff>=0.15.16",
+]

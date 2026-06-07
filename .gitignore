@@ -1,7 +1,12 @@
+# working data (DEMs, masks, tiles) — large, regenerable
 data/
+
+# outputs except the committed hero poster
 output/*
 !output/.gitkeep
-!output/xalapa_relieve.png
+!output/xalapa.png
+
 __pycache__/
 .venv/
 *.pyc
+.playwright-cli/
