@@ -49,14 +49,54 @@ def clean_bg(w, h):
     return Image.fromarray(img.clip(0, 255).astype(np.uint8), "RGB")
 
 
+def warm_bloom(img, relief, strength=0.45, sigma=7):
+    """soft glow isolated to the warm (street-emission) pixels of the relief."""
+    a = np.asarray(relief).astype(np.float64)
+    rgb, alpha = a[..., :3], a[..., 3:4] / 255.0
+    warm = np.clip((rgb[..., 0] - rgb[..., 2]) / 255.0, 0, 1)      # R - B
+    bright = np.clip(rgb.mean(2) / 255.0 - 0.45, 0, 1)
+    src = ((warm ** 1.3) * bright)[..., None] * np.array([255, 205, 120.]) * alpha
+    glow = np.stack([gaussian_filter(src[..., k], sigma) for k in range(3)], -1)
+    out = np.asarray(img).astype(np.float64)
+    out = 255 - (255 - out) * (255 - np.clip(glow * strength, 0, 255)) / 255   # screen
+    return Image.fromarray(out.clip(0, 255).astype(np.uint8))
+
+
+def label_zones(d, S):
+    pts = json.loads((C.OUT / "points.json").read_text())
+    zones = pts.get("zones", [])
+    if not zones:
+        return
+    big = {"city", "town", "suburb"}
+    # draw important zones first; skip any that would collide with a placed one
+    zones.sort(key=lambda z: (z["place"] not in big, -z.get("n", 0)))
+    placed = []
+    mind = 150 * S
+    for z in zones:
+        x, y = z["xy"]
+        if any((x - px) ** 2 + (y - py) ** 2 < mind ** 2 for px, py in placed):
+            continue
+        placed.append((x, y))
+        name = z["name"]
+        isbig = z["place"] in big
+        fnt = f((31 if isbig else 25) * S, "r" if isbig else "l")
+        for ox, oy in [(-2, 0), (2, 0), (0, -2), (0, 2), (-1.5, -1.5),
+                       (1.5, 1.5), (-1.5, 1.5), (1.5, -1.5)]:
+            tracked(d, (x + ox * S, y + oy * S), name, fnt, (236, 237, 238),
+                    ls=1.5 * S, anchor="ma")
+        tracked(d, (x, y), name, fnt, (24, 30, 42), ls=1.5 * S, anchor="ma")
+
+
 def main():
     relief = Image.open(C.RENDER_PNG).convert("RGBA")
     rw, rh = relief.size
     S = rw / 2000.0
+    streets = (C.DATA / "streets_emission.png").exists()
 
     img = clean_bg(rw, rh)
-    # soft contact shadow already baked into the relief's alpha (shadow catcher)
     img.paste(relief, (0, 0), relief)
+    if streets:
+        img = warm_bloom(img, relief)
     d = ImageDraw.Draw(img)
 
     m = int(70 * S)
@@ -65,9 +105,12 @@ def main():
     tracked(d, (m + 3 * S, m + 116 * S),
             "VERACRUZ · MÉXICO", f(23 * S, "l"), SOFT, ls=9 * S)
 
+    if streets:
+        label_zones(d, S)
+
     # ---- credit (bottom-left) --------------------------------------
-    tracked(d, (m, rh - m), "DEM: INEGI · LiDAR 5 m",
-            f(17 * S, "l"), SOFT, ls=2 * S)
+    cred = "DEM: INEGI · LiDAR 5 m" + ("   ·   red vial OSM" if streets else "")
+    tracked(d, (m, rh - m), cred, f(17 * S, "l"), SOFT, ls=2 * S)
 
     img.save(C.FINAL_PNG, quality=95)
     print("saved", C.FINAL_PNG, img.size)

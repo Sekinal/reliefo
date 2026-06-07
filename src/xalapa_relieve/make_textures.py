@@ -72,21 +72,23 @@ def main():
     vmin, vmax = meta["elev_min"], meta["elev_max"]
     alb = hypsometric(dem, vmin, vmax).astype(np.float64)
 
-    # optionally bake the street network onto the surface (drapes in 3D)
-    if os.environ.get("STREETS") and (C.DATA / "roads_minor.npy").exists():
-        from scipy.ndimage import gaussian_filter, grey_dilation
-        minor = grey_dilation(np.load(C.DATA / "roads_minor.npy").astype(np.float64),
-                              size=(2, 2))
-        major = grey_dilation(np.load(C.DATA / "roads_major.npy").astype(np.float64),
-                              size=(4, 4))
-        road = gaussian_filter(np.maximum(minor * 0.78, major), sigma=0.7)
-        road = (np.clip(road, 0, 1) * (mask > 0))[..., None]
-        # streets read as a crisp dark engraving over the smooth relief
-        ink = np.array([16, 21, 32], dtype=np.float64)
-        alb = alb * (1 - 0.88 * road) + ink * (0.88 * road)
-
     alb = alb.clip(0, 255).astype(np.uint8)
     Image.fromarray(alb, "RGB").save(C.ALBEDO_PNG)
+
+    # street network as an EMISSION map: Blender makes the grid self-lit so it
+    # glows over the (sharp) relief. Cleared when STREETS is off.
+    emi = C.DATA / "streets_emission.png"
+    if os.environ.get("STREETS") and (C.DATA / "roads_minor.npy").exists():
+        from scipy.ndimage import gaussian_filter, grey_dilation
+        minor = np.load(C.DATA / "roads_minor.npy").astype(np.float64)   # thin
+        major = grey_dilation(np.load(C.DATA / "roads_major.npy").astype(np.float64),
+                              size=(2, 2))
+        # minor grid stays faint so the relief shows through; majors a bit brighter
+        road = gaussian_filter(np.maximum(minor * 0.30, major * 0.7), sigma=0.5)
+        road = np.clip(road, 0, 1) * (mask > 0)
+        Image.fromarray((road * 255).astype(np.uint8)).save(emi)
+    elif emi.exists():
+        emi.unlink()
 
     hs = hillshade(dem)[..., None]
     bg = np.array([233, 234, 236], dtype=np.float64)

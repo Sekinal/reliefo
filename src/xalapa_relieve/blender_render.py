@@ -106,7 +106,28 @@ def terrain_material(obj):
     tex.interpolation = "Cubic"
     nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 0.92
-    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    surface = bsdf.outputs["BSDF"]
+
+    # glowing street network (self-lit) if the emission map exists
+    emi_path = DATA / "streets_emission.png"
+    if emi_path.exists():
+        etex = nt.nodes.new("ShaderNodeTexImage")
+        etex.image = bpy.data.images.load(str(emi_path))
+        etex.image.colorspace_settings.name = "Non-Color"
+        etex.interpolation = "Cubic"
+        mult = nt.nodes.new("ShaderNodeMath")
+        mult.operation = "MULTIPLY"
+        mult.inputs[1].default_value = 4.0          # glow strength
+        nt.links.new(etex.outputs["Color"], mult.inputs[0])
+        emis = nt.nodes.new("ShaderNodeEmission")
+        emis.inputs["Color"].default_value = (1.0, 0.82, 0.48, 1.0)   # warm lamp glow
+        nt.links.new(mult.outputs[0], emis.inputs["Strength"])
+        add = nt.nodes.new("ShaderNodeAddShader")
+        nt.links.new(bsdf.outputs["BSDF"], add.inputs[0])
+        nt.links.new(emis.outputs["Emission"], add.inputs[1])
+        surface = add.outputs["Shader"]
+
+    nt.links.new(surface, out.inputs["Surface"])
     obj.data.materials.append(mat)
 
 
@@ -213,7 +234,16 @@ def project_points(cam):
                    "pts": {f"{lo},{la}": px(lonlat_to_world(lo, la, 0.9))
                            for lo in lons for la in lats}}
     out["res"] = [RES_X, RES_Y]
-    (OUT / "points.json").write_text(json.dumps(out))
+    # named zones (OSM), projected onto the relief surface
+    zf = DATA / "zones.json"
+    if zf.exists():
+        zones = json.loads(zf.read_text())
+        out["zones"] = [{"name": z["name"], "place": z.get("place", ""),
+                         "xy": px(lonlat_to_world(z["lon"], z["lat"],
+                                                  terr_z(z["lon"], z["lat"])))}
+                        for z in zones]
+        print("projected", len(zones), "zones")
+    (OUT / "points.json").write_text(json.dumps(out, ensure_ascii=False))
     print("projected", len(places), "places +", len(lons) * len(lats), "grid pts")
 
 
