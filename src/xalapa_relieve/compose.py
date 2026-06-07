@@ -63,13 +63,10 @@ def main():
     # ---- title (top-left, over the clean background) ----------------
     tracked(d, (m, m), "XALAPA", f(86 * S, "r"), INK, ls=22 * S)
     tracked(d, (m + 3 * S, m + 116 * S),
-            "MUNICIPIO  ·  VERACRUZ, MÉXICO", f(23 * S, "l"), SOFT, ls=9 * S)
+            "VERACRUZ · MÉXICO", f(23 * S, "l"), SOFT, ls=9 * S)
 
-    # ---- credit (bottom-left, à la the reference) -------------------
-    by = rh - m
-    tracked(d, (m, by - 30 * S), "Relieve sombreado · exageración vertical ×4",
-            f(17 * S, "i"), SOFT, ls=2 * S)
-    tracked(d, (m, by), "DEM: INEGI · LiDAR terreno 5 m (modelo de elevación de alta resolución)   ·   2026",
+    # ---- credit (bottom-left) --------------------------------------
+    tracked(d, (m, rh - m), "DEM: INEGI · LiDAR 5 m",
             f(17 * S, "l"), SOFT, ls=2 * S)
 
     img.save(C.FINAL_PNG, quality=95)
