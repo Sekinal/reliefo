@@ -62,29 +62,45 @@ def warm_bloom(img, relief, strength=0.45, sigma=7):
     return Image.fromarray(out.clip(0, 255).astype(np.uint8))
 
 
-def label_zones(d, S):
+def label_zones(img, S):
     pts = json.loads((C.OUT / "points.json").read_text())
     zones = pts.get("zones", [])
     if not zones:
-        return
+        return img
     big = {"city", "town", "suburb"}
-    # draw important zones first; skip any that would collide with a placed one
+    drop = {"Lomas Verdes"}            # too close to Las Trancas
+    zones = [z for z in zones if z["name"] not in drop]
     zones.sort(key=lambda z: (z["place"] not in big, -z.get("n", 0)))
-    placed = []
-    mind = 150 * S
+    d0 = ImageDraw.Draw(img)
+    placed, chosen = [], []
+    px_, py_ = 13 * S, 7 * S
+    gap = 10 * S                                    # min clear space between chips
     for z in zones:
         x, y = z["xy"]
-        if any((x - px) ** 2 + (y - py) ** 2 < mind ** 2 for px, py in placed):
-            continue
-        placed.append((x, y))
-        name = z["name"]
         isbig = z["place"] in big
-        fnt = f((31 if isbig else 25) * S, "r" if isbig else "l")
-        for ox, oy in [(-2, 0), (2, 0), (0, -2), (0, 2), (-1.5, -1.5),
-                       (1.5, 1.5), (-1.5, 1.5), (1.5, -1.5)]:
-            tracked(d, (x + ox * S, y + oy * S), name, fnt, (236, 237, 238),
-                    ls=1.5 * S, anchor="ma")
-        tracked(d, (x, y), name, fnt, (24, 30, 42), ls=1.5 * S, anchor="ma")
+        fnt = f((30 if isbig else 27) * S, "r")
+        ls = 1.5 * S
+        w = sum(d0.textlength(c, font=fnt) for c in z["name"]) + ls * (len(z["name"]) - 1)
+        h = fnt.size
+        box = (x - w / 2 - px_ - gap, y - py_ - gap, x + w / 2 + px_ + gap, y + h + py_ + gap)
+        if any(box[0] < b[2] and b[0] < box[2] and box[1] < b[3] and b[1] < box[3]
+               for b in placed):
+            continue
+        placed.append(box)
+        chosen.append((x, y, z["name"], fnt, ls, w, h))
+
+    # translucent chips behind the labels so they read over the busy streets
+    ov = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    do = ImageDraw.Draw(ov)
+    for x, y, name, fnt, ls, w, h in chosen:
+        do.rounded_rectangle([x - w / 2 - px_, y - py_, x + w / 2 + px_, y + h + py_],
+                             radius=h * 0.5, fill=(247, 248, 249, 200))
+    img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
+
+    d = ImageDraw.Draw(img)
+    for x, y, name, fnt, ls, w, h in chosen:
+        tracked(d, (x, y), name, fnt, (26, 32, 44), ls=ls, anchor="ma")
+    return img
 
 
 def main():
@@ -97,6 +113,7 @@ def main():
     img.paste(relief, (0, 0), relief)
     if streets:
         img = warm_bloom(img, relief)
+        img = label_zones(img, S)
     d = ImageDraw.Draw(img)
 
     m = int(70 * S)
@@ -104,9 +121,6 @@ def main():
     tracked(d, (m, m), "XALAPA", f(86 * S, "r"), INK, ls=22 * S)
     tracked(d, (m + 3 * S, m + 116 * S),
             "VERACRUZ · MÉXICO", f(23 * S, "l"), SOFT, ls=9 * S)
-
-    if streets:
-        label_zones(d, S)
 
     # ---- credit (bottom-left) --------------------------------------
     cred = "DEM: INEGI · LiDAR 5 m" + ("   ·   red vial OSM" if streets else "")
