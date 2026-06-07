@@ -49,8 +49,19 @@ uv run xalapa-relieve --skip-dem # reuse the cached DEM
 Needs a local **Blender** (5.x) on `PATH`; a CUDA/OptiX GPU makes Cycles fast
 (falls back to CPU). The finished poster is `output/xalapa_relieve.png`.
 
+## Colour scale
+
+The default is the genuine **Crameri `oslo`** colormap (reversed: pale lowlands
+→ deep navy heights) — *perceptually uniform*, so equal elevation steps look
+equal. For a small temperate municipio (no snow, no sea) a clean monochrome
+scale reads unambiguously as elevation and avoids the "green = vegetation"
+misread of green→brown hypsometric tints. Swap it via the `PALETTE` env var:
+`oslo` (default), `lajolla`/`copper` (warm), `davos` (teal), `blue`, `imhof`,
+`bukavu` — e.g. `PALETTE=copper uv run xalapa-relieve --skip-dem`.
+
 ## Tuning
 
 Top of `blender_render.py`: vertical exaggeration (`EXAG`), sun azimuth/altitude.
-Top of `make_textures.py`: the `COLORS` ramp and `GAMMA` (how much ground stays
-pale vs how much goes deep blue). `config.py`: the bbox / municipio.
+`make_textures.py`: `PALETTES` and `GAMMA` (how much ground stays pale vs how
+much goes deep). `fetch_lidar.py`: boundary smoothing + edge taper.
+`config.py`: the bbox / municipio.

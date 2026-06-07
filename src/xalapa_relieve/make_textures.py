@@ -4,23 +4,50 @@ preview to eyeball the cut-out terrain.
 """
 from __future__ import annotations
 import json
+import os
 import numpy as np
 from PIL import Image
 from . import config as C
 
-# Clean monochrome hypsometric (joewdavies / Greece style): pale lowlands
-# -> deep saturated blue highlands. Strong, modern, minimal.
-COLORS = ["#eef4f8", "#dbe8f3", "#bdd5ea", "#93b8dd",
-          "#6695cb", "#4172b4", "#274f93", "#183a72", "#0e2a55"]
-GAMMA = 1.6    # keep the low-mid ground pale; reserve deep blue for the heights
+try:
+    from cmcrameri import cm as _crameri          # perceptually-uniform maps
+except Exception:                                  # noqa
+    _crameri = None
+
+# Colour scales (low -> high), gamma. A spec is either
+#   ("cm", crameri_name, reverse, lo, hi)   — the real perceptually-uniform map
+#   ("hex", [hex, ...])                      — a hand-mixed ramp
+PALETTES = {
+    # DEFAULT — the genuine Crameri 'oslo', reversed (pale low -> deep navy):
+    # perceptually uniform, clean and modern. The recommended scale.
+    "oslo":   (("cm", "oslo", True, 0.04, 0.97), 1.30),
+    "lajolla":(("cm", "lajolla", False, 0.05, 0.98), 1.20),   # warm, uniform
+    "davos":  (("cm", "davos", True, 0.05, 0.97), 1.25),      # teal, uniform
+    "bukavu": (("cm", "bukavu", False, 0.5, 1.0), 1.0),        # topo multihue
+    "blue":   (("hex", ["#eef4f8", "#dbe8f3", "#bdd5ea", "#93b8dd", "#6695cb",
+                         "#4172b4", "#274f93", "#183a72", "#0e2a55"]), 1.6),
+    "copper": (("hex", ["#f7f1e7", "#ecdcc2", "#dabd95", "#c39a6b", "#a8784b",
+                         "#876035", "#664626", "#46301b", "#291c11"]), 1.55),
+    "imhof":  (("hex", ["#3f6b46", "#5f8a4d", "#86a258", "#aeae6a", "#ccb277",
+                         "#dcc596", "#e9d8b4", "#f4ead2", "#fbf5e8"]), 0.95),
+}
+_OSLO_FALLBACK = ["#f4f4f4", "#c6cad2", "#9dadc9", "#7b98c9", "#517bbd",
+                  "#285991", "#173d62", "#0f2338", "#060c13"]
+_SPEC, GAMMA = PALETTES[os.environ.get("PALETTE", "oslo")]
 
 
 def ramp(n=256):
-    cols = np.array([[int(c[i:i+2], 16) for i in (1, 3, 5)] for c in COLORS],
-                    dtype=np.float64)
-    xs = np.linspace(0, 1, len(COLORS))
-    g = np.linspace(0, 1, n)
-    return np.stack([np.interp(g, xs, cols[:, k]) for k in range(3)], axis=1)
+    if _SPEC[0] == "cm" and _crameri is not None:
+        _, name, rev, lo, hi = _SPEC
+        cmap = getattr(_crameri, name)
+        xs = np.linspace(lo, hi, n)
+        if rev:
+            xs = xs[::-1]
+        return np.array([cmap(float(x))[:3] for x in xs]) * 255.0
+    cols = _SPEC[1] if _SPEC[0] == "hex" else _OSLO_FALLBACK
+    rgb = np.array([[int(c[i:i+2], 16) for i in (1, 3, 5)] for c in cols], float)
+    xs = np.linspace(0, 1, len(cols)); g = np.linspace(0, 1, n)
+    return np.stack([np.interp(g, xs, rgb[:, k]) for k in range(3)], axis=1)
 
 
 def hypsometric(dem, vmin, vmax):
