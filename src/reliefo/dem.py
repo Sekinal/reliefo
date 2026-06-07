@@ -136,9 +136,9 @@ def _boundary_mask(cfg: Config, bounds, W: int, H: int) -> np.ndarray:
 def _clean_mask(mask: np.ndarray) -> np.ndarray:
     """Tidy the silhouette so the cut edge has no pixel-scale spikes/flaps."""
     mask = binary_fill_holes(mask)
-    mask = binary_opening(mask, iterations=2)
-    mask = binary_closing(mask, iterations=2)
-    mask = gaussian_filter(mask.astype(float), sigma=3.0) > 0.5
+    mask = binary_opening(mask, iterations=3)      # strip thin peninsulas
+    mask = binary_closing(mask, iterations=3)
+    mask = gaussian_filter(mask.astype(float), sigma=4.0) > 0.5   # smooth perimeter
     mask = binary_erosion(mask, iterations=2)
     return mask.astype(np.uint8)
 
@@ -171,9 +171,13 @@ def build(cfg: Config) -> None:
     np.save(cfg.elevation_npy, dem)
     np.save(cfg.mask_npy, mask)
 
-    # taper the height to the base over the last few px so the rim is rounded,
-    # not a cliff of triangular flaps; then a light denoise of the displacement.
-    taper = np.clip(distance_transform_edt(mask) / max(cfg.dem.edge_taper_px, 1e-6), 0, 1)
+    # taper the height to the base near the boundary so the rim is a clean
+    # rounded edge, not a cliff of triangular flaps. A small pad forces the
+    # outermost ring flat to the base (kills edge flaps on steep boundaries),
+    # then the height ramps up over edge_taper_px.
+    rim_pad = 4.0
+    taper = np.clip((distance_transform_edt(mask) - rim_pad)
+                    / max(cfg.dem.edge_taper_px, 1e-6), 0, 1)
     dem_s = gaussian_filter(dem, sigma=cfg.dem.height_sigma)
     norm = ((dem_s - vmin) / (vmax - vmin)).clip(0, 1) * taper
     Image.fromarray((norm * 65535).astype(np.uint16)).save(cfg.heightmap_png)

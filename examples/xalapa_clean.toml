@@ -30,7 +30,6 @@ charts = [
 
 [relief]
 palette      = "oslo"
-exaggeration = 4.2
 sun_azimuth  = 318
 sun_altitude = 42
 sun_energy   = 3.8

@@ -113,8 +113,8 @@ source = "lidar"      # INEGI 5 m terrain; charts auto-discovered from the bbox
 res_m  = 5
 
 [relief]
-palette      = "oslo"
-exaggeration = 4.2
+palette = "oslo"
+# exaggeration omitted -> auto from terrain steepness (capped at 1.5)
 
 [render]
 resolution = 4000

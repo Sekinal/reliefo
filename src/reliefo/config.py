@@ -67,14 +67,18 @@ class DemCfg(BaseModel):
     charts: list[str] = Field(default_factory=list)   # source="lidar"
     file: Path | None = None                   # source="local" GeoTIFF
     height_sigma: float = 0.8                  # displacement denoise
-    edge_taper_px: float = 10.0                # round the cut rim to the base
+    edge_taper_px: float = 14.0                # round the cut rim to the base
     smooth_mask: bool = True                   # tidy the silhouette
 
 
 class ReliefCfg(BaseModel):
     model_config = ConfigDict(extra="forbid")
     palette: str = "oslo"                      # crameri name or built-in ramp
-    exaggeration: float = 4.2
+    # Vertical exaggeration. 1.0 = true scale. VE is *scale-dependent*: these are
+    # large-scale (single-municipio, ~20 km) maps, so keep it ~1 — high VE belongs
+    # to small-scale continental maps; on a zoomed-in frame it over-verticalises
+    # steep slopes into smooth-shaded "scale"/3D-print render artifacts.
+    exaggeration: float = 1.4
     sun_azimuth: float = 318.0
     sun_altitude: float = 42.0
     sun_energy: float = 3.8
