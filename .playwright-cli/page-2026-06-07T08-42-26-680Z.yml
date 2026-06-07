@@ -1,0 +1,362 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e6]:
+        - generic:
+          - navigation:
+            - link "Ir al contenido principal" [ref=e7] [cursor=pointer]:
+              - /url: "#contPrinc"
+          - link "(INEGI)" [ref=e11] [cursor=pointer]:
+            - /url: /default.html
+            - heading "(INEGI)" [level=2] [ref=e12]:
+              - generic [ref=e13]: (INEGI)
+          - generic [ref=e16]:
+            - link "Inegi informa Facebook" [ref=e17] [cursor=pointer]:
+              - /url: http://www.facebook.com/pages/inegi-informa/180299958681029
+              - img "Inegi informa Facebook" [ref=e18]
+            - link "Inegi informa Twitter" [ref=e19] [cursor=pointer]:
+              - /url: http://twitter.com/inegi_informa
+              - img "Inegi informa Twitter" [ref=e20]
+            - link "Inegi informa Youtube" [ref=e21] [cursor=pointer]:
+              - /url: https://www.youtube.com/user/INEGIInforma
+              - img "Inegi informa Youtube" [ref=e22]
+            - link "Inegi informa Instagram" [ref=e23] [cursor=pointer]:
+              - /url: https://www.instagram.com/inegi_informa/
+              - img "Inegi informa Instagram" [ref=e24]
+            - link "Inegi informa RSS" [ref=e25] [cursor=pointer]:
+              - /url: /servicios/rss
+              - img "Inegi informa RSS" [ref=e26]
+            - link "Otros idiomas" [ref=e27] [cursor=pointer]:
+              - /url: "#"
+            - link "Contacto" [ref=e28] [cursor=pointer]:
+              - /url: /inegi/contacto.html
+            - link "+A" [ref=e29] [cursor=pointer]:
+              - /url: "#"
+    - generic "Menú del sitio" [ref=e30]:
+      - navigation [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - text: 
+            - navigation:
+              - list [ref=e35]:
+                - listitem [ref=e36]:
+                  - link [ref=e37] [cursor=pointer]:
+                    - /url: /default.html
+                - listitem [ref=e38]:
+                  - button "Temas" [ref=e39] [cursor=pointer]
+                - listitem [ref=e40]:
+                  - button "Programas de información" [ref=e41] [cursor=pointer]
+                - listitem [ref=e42]:
+                  - button "Sistemas de Consulta" [ref=e43] [cursor=pointer]
+                - listitem [ref=e44]:
+                  - button "Desarrollo social" [ref=e45] [cursor=pointer]
+                - listitem [ref=e46]:
+                  - button "Infraestructura" [ref=e47] [cursor=pointer]
+                - listitem [ref=e48]:
+                  - button "Acerca del INEGI" [ref=e49] [cursor=pointer]
+          - generic "Buscador" [ref=e50]:
+            - search "Buscador del sitio del INEGI" [ref=e52]:
+              - generic [ref=e53]:
+                - textbox "Buscar Ingresa datos a enviar al buscador" [ref=e54]:
+                  - /placeholder: Buscar...
+                - button "Enviar datos al buscador" [ref=e55] [cursor=pointer]: Buscar
+                - generic: 
+          - text: 
+  - navigation [ref=e61]:
+    - listitem [ref=e62]:
+      - link "Inicio" [ref=e63] [cursor=pointer]:
+        - /url: /default.html
+    - listitem [ref=e64]: /
+    - listitem [ref=e65]:
+      - link "Temas" [ref=e66] [cursor=pointer]:
+        - /url: /datos/
+    - listitem [ref=e67]: /
+    - listitem [ref=e68]:
+      - link "Mapas" [ref=e69] [cursor=pointer]:
+        - /url: /datos/?t=0150000000000000
+    - listitem [ref=e70]: /
+    - listitem [ref=e71]:
+      - link "Relieve continental" [ref=e72] [cursor=pointer]:
+        - /url: /temas/relieve/continental/
+    - listitem [ref=e73]: /
+    - listitem [ref=e74]:
+      - link "Continuo de elevaciones mexicano y modelos digitales de elevación" [ref=e75] [cursor=pointer]:
+        - /url: /app/geo2/elevacionesmex/
+  - generic [ref=e77]:
+    - generic "Presentación Continuo de elevaciones mexicano y modelos digitales de elevación" [ref=e80]:
+      - generic [ref=e81]:
+        - heading "Continuo de elevaciones mexicano y modelos digitales de elevación" [level=2] [ref=e82]
+        - link "imprimir presentación" [ref=e84] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e85]: 
+      - generic [ref=e86]:
+        - paragraph [ref=e87]: Los modelos son un producto que representan las elevaciones del territorio continental mexicano, mediante valores que indican puntos sobre la superficie del terreno, cuya ubicación geográfica se encuentra definida por coordenadas(X,Y) a las que se le integran valores que representan las elevaciones(Z). Los puntos se encuentran espaciados y distribuidos de modo regular.
+        - text:     
+        - button "Desglosa información de la presentación" [ref=e88] [cursor=pointer]:
+          - paragraph [ref=e89]:
+            - generic [ref=e90]: 
+            - text: Ver más
+    - generic [ref=e92]:
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - text: Ayuda general
+          - link [ref=e96] [cursor=pointer]:
+            - /url: DownloadPdf.do
+          - text: 403KB
+        - generic [ref=e97]:
+          - generic [ref=e99] [cursor=pointer]:
+            - text: Mapa Base
+            - text: INEGI Sombreado
+          - button "" [ref=e109] [cursor=pointer]:
+            - generic [ref=e110]: 
+          - generic "X"
+          - text: 
+          - generic [ref=e115]:
+            - generic: ×
+            - button "⤢" [ref=e119] [cursor=pointer]
+        - text: 
+        - 'heading "Versión: 202508260940" [level=5] [ref=e121]':
+          - generic [ref=e122]: "Versión: 202508260940"
+      - generic [ref=e124]:
+        - generic [ref=e125]:
+          - generic [ref=e126]: 
+          - text: Resultados
+        - generic [ref=e128]:
+          - generic "Tabla de resultados" [ref=e129]: "Resultados encontrados:"
+          - generic [ref=e130]: "8"
+        - table [ref=e131]:
+          - rowgroup [ref=e132]:
+            - row "Nombre Versión Tipo de archivo" [ref=e133]:
+              - columnheader "Nombre" [ref=e134]
+              - columnheader "Versión" [ref=e135]
+              - columnheader "Tipo de archivo" [ref=e136]
+          - rowgroup [ref=e137]:
+            - row "CEM 4.0 Nacional a 15m Completo 4.0 6.47 GB" [ref=e138]:
+              - cell "CEM 4.0 Nacional a 15m Completo" [ref=e139]
+              - cell "4.0" [ref=e140]
+              - cell "6.47 GB" [ref=e141]:
+                - link [ref=e142] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip
+                - text: 6.47 GB
+            - row "CEM 4.0 Nacional a 15m parte 1 4.0 0.97 GB" [ref=e143]:
+              - cell "CEM 4.0 Nacional a 15m parte 1" [ref=e144]
+              - cell "4.0" [ref=e145]
+              - cell "0.97 GB" [ref=e146]:
+                - link [ref=e147] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip.001
+                - text: 0.97 GB
+            - row "CEM 4.0 Nacional a 15m parte 2 4.0 0.97 GB" [ref=e148]:
+              - cell "CEM 4.0 Nacional a 15m parte 2" [ref=e149]
+              - cell "4.0" [ref=e150]
+              - cell "0.97 GB" [ref=e151]:
+                - link [ref=e152] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip.002
+                - text: 0.97 GB
+            - row "CEM 4.0 Nacional a 15m parte 3 4.0 0.97 GB" [ref=e153]:
+              - cell "CEM 4.0 Nacional a 15m parte 3" [ref=e154]
+              - cell "4.0" [ref=e155]
+              - cell "0.97 GB" [ref=e156]:
+                - link [ref=e157] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip.003
+                - text: 0.97 GB
+            - row "CEM 4.0 Nacional a 15m parte 4 4.0 0.97 GB" [ref=e158]:
+              - cell "CEM 4.0 Nacional a 15m parte 4" [ref=e159]
+              - cell "4.0" [ref=e160]
+              - cell "0.97 GB" [ref=e161]:
+                - link [ref=e162] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip.004
+                - text: 0.97 GB
+            - row "CEM 4.0 Nacional a 15m parte 5 4.0 0.97 GB" [ref=e163]:
+              - cell "CEM 4.0 Nacional a 15m parte 5" [ref=e164]
+              - cell "4.0" [ref=e165]
+              - cell "0.97 GB" [ref=e166]:
+                - link [ref=e167] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip.005
+                - text: 0.97 GB
+            - row "CEM 4.0 Nacional a 15m parte 6 4.0 0.97 GB" [ref=e168]:
+              - cell "CEM 4.0 Nacional a 15m parte 6" [ref=e169]
+              - cell "4.0" [ref=e170]
+              - cell "0.97 GB" [ref=e171]:
+                - link [ref=e172] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip.006
+                - text: 0.97 GB
+            - row "CEM 4.0 Nacional a 15m parte 7 4.0 643 MB" [ref=e173]:
+              - cell "CEM 4.0 Nacional a 15m parte 7" [ref=e174]
+              - cell "4.0" [ref=e175]
+              - cell "643 MB" [ref=e176]:
+                - link [ref=e177] [cursor=pointer]:
+                  - /url: e00_cem_r15_v4_tif.zip.007
+                - text: 643 MB
+  - contentinfo [ref=e179]:
+    - generic [ref=e182]:
+      - generic [ref=e184]:
+        - strong [ref=e186]: Contacto
+        - generic [ref=e187]:
+          - img "Siglas de INEGI" [ref=e188]
+          - link "Llámanos al teléfono 800 111 46 34" [ref=e189] [cursor=pointer]:
+            - /url: tel:800 111 46 34
+            - text: 800 111 46 34
+          - link "Chatse abre en nueva ventana" [ref=e190] [cursor=pointer]:
+            - /url: javascript:void(0)
+            - text: Chat
+          - link "atencion.usuarios@inegi.org.mx se abre en nueva ventana" [ref=e191] [cursor=pointer]:
+            - /url: mailto:atencion.usuarios@inegi.org.mx
+            - text: atencion.usuarios@inegi.org.mx
+          - link "Directorio" [ref=e192] [cursor=pointer]:
+            - /url: /inegi/contacto.html#Directorios
+          - link "Solicitud de información" [ref=e193] [cursor=pointer]:
+            - /url: /inegi/contacto.html
+          - generic [ref=e194]:
+            - link "Inegi informa Facebook" [ref=e195] [cursor=pointer]:
+              - /url: http://www.facebook.com/pages/inegi-informa/180299958681029
+              - img "Inegi informa Facebook" [ref=e196]
+            - link "Inegi informa Twitter" [ref=e197] [cursor=pointer]:
+              - /url: http://twitter.com/inegi_informa
+              - img "Inegi informa Twitter" [ref=e198]
+            - link "Inegi informa Youtube" [ref=e199] [cursor=pointer]:
+              - /url: https://www.youtube.com/user/INEGIInforma
+              - img "Inegi informa Youtube" [ref=e200]
+            - link "Inegi informa Instagram" [ref=e201] [cursor=pointer]:
+              - /url: https://www.instagram.com/inegi_informa/
+              - img "Inegi informa Instagram" [ref=e202]
+            - link "Inegi informa RSS" [ref=e203] [cursor=pointer]:
+              - /url: /servicios/rss
+              - img "Inegi informa RSS" [ref=e204]
+      - generic [ref=e205]:
+        - strong [ref=e207]: Enlaces
+        - generic [ref=e208]:
+          - link "Investigación" [ref=e209] [cursor=pointer]:
+            - /url: /investigacion/
+          - link "Sala de prensa" [ref=e210] [cursor=pointer]:
+            - /url: /app/saladeprensa/
+          - link "Normateca Institucional" [ref=e211] [cursor=pointer]:
+            - /url: /app/normateca/
+          - link "Transparencia" [ref=e212] [cursor=pointer]:
+            - /url: /transparencia/
+          - link "Desarrolladores" [ref=e213] [cursor=pointer]:
+            - /url: /servicios/api_indicadores.html
+          - link "Oportunidades de trabajo" [ref=e214] [cursor=pointer]:
+            - /url: /app/spc/
+          - link "Eventos" [ref=e215] [cursor=pointer]:
+            - /url: /eventos/otros/default.html
+          - link "Véndale al INEGI" [ref=e216] [cursor=pointer]:
+            - /url: /inegi/vendelealinegi/
+          - link "Armonización contable" [ref=e217] [cursor=pointer]:
+            - /url: /inegi/armonizacion/contable/
+          - link "Sistema de Manejo Ambiental" [ref=e218] [cursor=pointer]:
+            - /url: /inegi/sma/politica
+      - generic [ref=e219]:
+        - strong [ref=e221]: Sitios de interés
+        - generic [ref=e222]:
+          - link "SNIEG se abre en nueva ventana" [ref=e223] [cursor=pointer]:
+            - /url: https://snieg.mx/
+            - text: SNIEG
+          - link "Catálogo Nacional de Indicadores se abre en nueva ventana" [ref=e224] [cursor=pointer]:
+            - /url: https://www.snieg.mx/cni/
+            - text: Catálogo Nacional de Indicadores
+          - link "Cuéntame de México se abre en nueva ventana" [ref=e225] [cursor=pointer]:
+            - /url: https://cuentame.inegi.org.mx/
+            - text: Cuéntame de México
+          - link "Objetivos de Desarrollo Sostenible se abre en nueva ventana" [ref=e226] [cursor=pointer]:
+            - /url: https://agenda2030.mx/
+            - text: Objetivos de Desarrollo Sostenible
+          - link "Órgano Interno de Control se abre en nueva ventana" [ref=e227] [cursor=pointer]:
+            - /url: https://ci.inegi.org.mx/
+            - text: Órgano Interno de Control
+          - link "Denuncias se abre en nueva ventana" [ref=e228] [cursor=pointer]:
+            - /url: https://ci.inegi.org.mx/denuncias/DenunciaOICSIPEC.aspx
+            - text: Denuncias
+          - link "Enlaces de interés" [ref=e229] [cursor=pointer]:
+            - /url: /inegi/enlaces.html
+    - generic [ref=e231]:
+      - link "Mapa del sitio" [ref=e232] [cursor=pointer]:
+        - /url: /mapasitio/
+      - text: "|"
+      - link "Términos de uso" [ref=e233] [cursor=pointer]:
+        - /url: /inegi/terminos.html
+      - text: "|"
+      - link "Accesibilidad" [ref=e234] [cursor=pointer]:
+        - /url: /inegi/accesibilidad/
+      - generic [ref=e235]: Derechos reservados © INEGI
+  - generic "Compartir página en redes sociales" [ref=e236]:
+    - generic [ref=e237]:
+      - button "Cerrar" [ref=e239] [cursor=pointer]
+      - list [ref=e240]:
+        - listitem [ref=e241]:
+          - strong [ref=e242]: Compartir
+          - separator [ref=e243]
+        - listitem [ref=e244]:
+          - button "Facebook Comparte esta página nueva ventana" [ref=e245] [cursor=pointer]:
+            - paragraph [ref=e246]: Facebook
+        - listitem [ref=e247]:
+          - button "Twitter Comparte esta página nueva ventana" [ref=e248] [cursor=pointer]:
+            - paragraph [ref=e249]: Twitter
+        - listitem [ref=e250]:
+          - button "Correo Comparte esta página nueva ventana" [ref=e251] [cursor=pointer]:
+            - paragraph [ref=e252]: Email
+        - listitem [ref=e253]:
+          - textbox [ref=e254]
+          - link "Copiar vínculo" [ref=e256] [cursor=pointer]:
+            - /url: javascript:_copTextEnc()
+  - generic [ref=e257]:
+    - button "Compartir" [ref=e260] [cursor=pointer]:
+      - generic [ref=e261]: Compartir
+    - link "Chat" [ref=e263] [cursor=pointer]:
+      - /url: javascript:void(0)
+    - list [ref=e265]:
+      - listitem [ref=e266]:
+        - button "Nos interesa conocer tu opinión del Sitio del INEGI" [ref=e267] [cursor=pointer]: Sugerencias
+  - generic [ref=e268]:
+    - button "Cerrar" [ref=e270] [cursor=pointer]
+    - generic [ref=e271]:
+      - strong [ref=e273]: Sugerencias
+      - strong [ref=e275]: Nos interesa conocer tu opinión del Sitio del INEGI
+      - group "*¿Encontraste la información que buscabas?" [ref=e276]:
+        - generic [ref=e277]: "*¿Encontraste la información que buscabas?"
+        - generic [ref=e278]:
+          - radio "Sí" [ref=e279]
+          - generic [ref=e280]: Sí
+        - generic [ref=e281]:
+          - radio "No" [ref=e282]
+          - generic [ref=e283]: "No"
+        - generic [ref=e284]: ¿Qué información buscaste?
+        - textbox "* Favor de especificar si encontraste la información" [ref=e285]
+      - group "*¿Te fue de utilidad?" [ref=e286]:
+        - generic [ref=e287]: "*¿Te fue de utilidad?"
+        - generic [ref=e288]:
+          - radio "Sí" [ref=e289]
+          - generic [ref=e290]: Sí
+        - generic [ref=e291]:
+          - radio "No" [ref=e292]
+          - generic [ref=e293]: "No"
+      - group "*¿Cómo calificas tu experiencia el día de hoy?" [ref=e294]:
+        - generic [ref=e295]: "*¿Cómo calificas tu experiencia el día de hoy?"
+        - combobox "¿Cómo calificas tu experiencia el día de hoy?" [ref=e297]:
+          - option "Selecciona..." [disabled] [selected]
+          - option "10"
+          - option "9"
+          - option "8"
+          - option "7"
+          - option "6"
+          - option "5"
+          - option "4"
+          - option "3"
+          - option "2"
+          - option "1"
+          - option "0"
+      - generic [ref=e298]: "Comentarios y sugerencias:"
+      - textbox "Comentarios y sugerencias:" [ref=e299]
+      - generic [ref=e300]: "Correo:"
+      - textbox "Correo:" [ref=e301]:
+        - /placeholder: ejemplo@correo.com
+      - iframe [ref=e305]:
+        - generic [ref=f3e2]:
+          - generic [ref=f3e3]:
+            - checkbox "No soy un robot" [ref=f3e7]
+            - generic [ref=f3e11]: No soy un robot
+          - generic [ref=f3e15]: reCAPTCHA
+      - generic [ref=e306]: "*"
+      - text: Los campos marcados con asterisco son obligatorios.
+      - alert
+      - button "Enviar" [ref=e308] [cursor=pointer]
+  - img [ref=e311]

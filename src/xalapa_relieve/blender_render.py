@@ -48,7 +48,7 @@ def clear():
 
 def make_terrain():
     # high-res grid sized to the DEM aspect, in km units
-    sx = min(meta["width"], 2400)
+    sx = min(meta["width"], 3200)
     sy = int(round(sx * H_km / W_km))
     bpy.ops.mesh.primitive_grid_add(x_subdivisions=sx, y_subdivisions=sy, size=1.0)
     g = bpy.context.active_object

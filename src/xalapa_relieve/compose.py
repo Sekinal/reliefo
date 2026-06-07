@@ -67,9 +67,9 @@ def main():
 
     # ---- credit (bottom-left, à la the reference) -------------------
     by = rh - m
-    tracked(d, (m, by - 30 * S), "Relieve sombreado · exageración vertical ×5",
+    tracked(d, (m, by - 30 * S), "Relieve sombreado · exageración vertical ×4",
             f(17 * S, "i"), SOFT, ls=2 * S)
-    tracked(d, (m, by), "DEM: INEGI · Continuo de Elevaciones Mexicano 4.0 (15 m)   ·   2026",
+    tracked(d, (m, by), "DEM: INEGI · LiDAR terreno 5 m (modelo de elevación de alta resolución)   ·   2026",
             f(17 * S, "l"), SOFT, ls=2 * S)
 
     img.save(C.FINAL_PNG, quality=95)

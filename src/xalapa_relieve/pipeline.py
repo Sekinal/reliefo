@@ -39,9 +39,9 @@ def main():
     res = a.res or (1400 if a.draft else 3400)
     samples = a.samples or (48 if a.draft else 160)
 
-    from . import fetch_dem, make_textures, compose
+    from . import fetch_lidar, make_textures, compose
     if not a.skip_dem:
-        fetch_dem.main()
+        fetch_lidar.main()      # INEGI 5 m LiDAR (best available)
     make_textures.main()
     run_blender(res, samples)
     compose.main()

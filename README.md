@@ -13,15 +13,20 @@ high point of the city. Elevation range in frame: **663 – 1,596 m**.
 
 ## Data
 
-- **Elevation:** INEGI **Continuo de Elevaciones Mexicano (CEM 4.0), 15 m** —
-  the authoritative Mexican DEM, twice the resolution of the global GLO-30 —
-  pulled straight from INEGI's public GeoServer **WCS**
-  (`gaia.inegi.org.mx/geoserver/wcs`, coverage `cem4_workespace:cem15m_3857`)
-  and reprojected to UTM 14N. *(For a small area, resolution matters: 30 m
-  global data looks soft when blown up to poster size; 15 m is noticeably
-  crisper. INEGI also serves 5 m / 1.5 m LiDAR per chart for even more.)*
+- **Elevation:** INEGI **LiDAR terrain (bare-earth) DEM at 5 m** — the best
+  data available for Xalapa, ~6× the resolution of the global GLO-30 (≈4.9 M
+  real samples inside the municipio). The 1:10,000 chart tiles are pulled via
+  INEGI's own `getF10KDescarga.do` endpoint, mosaicked (ESRI grids), reprojected
+  to UTM 14N and clipped to the municipio. See `fetch_lidar.py`.
+  *(`fetch_dem.py` keeps the simpler 15 m CEM-via-WCS path as a fallback; on a
+  small area, resolution matters — 30 m global data looks soft at poster size.)*
 - **Boundary:** INEGI **Marco Geoestadístico 2020** — Xalapa municipio
   (clave 30087), rasterised to a mask that cuts the Blender mesh.
+
+> The 5 m chart codes were found by reading INEGI's elevation tool: its
+> `caneva_10k` vector grid (decoded as MVT) gives the 1:10,000 chart codes over
+> the municipio, and `getF10KDescarga.do` returns each chart's direct download
+> URL — no UI clicking required.
 
 ## How it works
 
