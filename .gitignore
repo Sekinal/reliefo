@@ -5,6 +5,7 @@ data/
 output/*
 !output/.gitkeep
 !output/xalapa.png
+!output/xalapa_clean.png
 
 __pycache__/
 .venv/

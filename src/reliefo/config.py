@@ -44,6 +44,7 @@ class MapCfg(BaseModel):
     name: str                                  # used for filenames + default title
     title: str | None = None                   # poster headline (defaults to NAME)
     subtitle: str = ""                         # e.g. "VERACRUZ · MÉXICO"
+    slug: str | None = None                    # output filename stem (defaults to name)
     bbox: BBox
 
     @property
@@ -135,7 +136,8 @@ class Config(BaseModel):
 
     @property
     def slug(self) -> str:
-        return self.map.name.lower().replace(" ", "_")
+        stem = self.map.slug or self.map.name
+        return stem.lower().replace(" ", "_")
 
     @property
     def data(self) -> Path:

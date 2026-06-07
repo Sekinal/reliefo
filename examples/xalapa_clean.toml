@@ -1,0 +1,47 @@
+# Xalapa — the bare relief variant: no streets, no labels, just the terrain.
+# Identical to xalapa.toml but with streets/labels off and its own output name.
+#
+#   uv run reliefo build examples/xalapa_clean.toml            # -> output/xalapa_clean.png
+#   uv run reliefo build examples/xalapa_clean.toml --skip-dem # reuse the cached DEM
+
+[paths]
+data = "../data"
+out  = "../output"
+
+[map]
+name     = "Xalapa"
+slug     = "xalapa_clean"     # so it doesn't overwrite the streets variant
+title    = "XALAPA"
+subtitle = "VERACRUZ · MÉXICO"
+bbox     = { west = -96.978, south = 19.478, east = -96.792, north = 19.606 }
+
+[boundary]
+file = "../data/xalapa_mun.geojson"
+
+[dem]
+source        = "lidar"
+res_m         = 5
+height_sigma  = 0.8
+edge_taper_px = 10
+charts = [
+  "E14B27D1", "E14B27D2", "E14B27D3", "E14B27D4", "E14B37A1", "E14B37A2",
+  "E14B27E1", "E14B27E3", "E14B37B1", "E14B27E2", "E14B27E4", "E14B37B2",
+]
+
+[relief]
+palette      = "oslo"
+exaggeration = 4.2
+sun_azimuth  = 318
+sun_altitude = 42
+sun_energy   = 3.8
+cam_tilt     = 9
+
+[streets]
+enabled = false               # <- bare relief
+
+[labels]
+enabled = false               # <- no zone names
+
+[render]
+resolution = 4000
+samples    = 160
