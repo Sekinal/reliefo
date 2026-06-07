@@ -1,53 +1,46 @@
 # xalapa-relieve
 
-A vintage **1953 Geological-Survey-style raised-relief plate** of the
-**municipio of Xalapa** (Veracruz, México), rendered in **Blender** and cut to
-the municipal boundary so only Xalapa floats on the paper — like the islands
-of the original Japan plate. Finished with an aged-paper cartouche,
-hypsometric legend, graticule and serif place names.
+A clean, modern **shaded-relief poster of the municipio of Xalapa**
+(Veracruz, México), rendered in **Blender** from Copernicus GLO-30 and cut to
+the municipal boundary so only Xalapa floats on a soft light background —
+a monochrome hypsometric relief in the spirit of @joewdavies' country plates.
 
-![Xalapa relief plate](output/xalapa_relieve_1953.png)
+![Xalapa relief](output/xalapa_relieve.png)
 
-The terrain spans the municipio's full range, **660 – 1,596 m**: brown
-highlands in the west (with a volcanic cone near the centre) sloping to the
-green lowlands of the east.
+Pale lowlands in the east rise to the deep-blue volcanic highlands of the
+west; the cone near the centre is **Cerro de Macuiltépetl (1,522 m)**, the
+high point of the city. Elevation range in frame: **663 – 1,596 m**.
 
 ## Data
 
-- **Elevation:** Copernicus DEM **GLO-30** (ESA) — the authoritative free
-  global DEM — pulled from the public AWS bucket via GDAL `/vsicurl`,
-  reprojected to **UTM 14N** and resampled to a smooth **10 m**.
-- **Boundary:** INEGI **Marco Geoestadístico 2020** — the Xalapa municipio
-  polygon (clave 30087), rasterised to a mask that cuts the Blender mesh to the
-  municipal silhouette.
-
-Not a fork of [geoblender](https://github.com/joewdavies/geoblender) — a fresh
-pipeline written from scratch, but in the same raised-relief spirit.
+- **Elevation:** Copernicus DEM **GLO-30** (ESA), reprojected to UTM 14N and
+  resampled to a smooth 10 m (GDAL `/vsicurl` from the public AWS bucket).
+- **Boundary:** INEGI **Marco Geoestadístico 2020** — Xalapa municipio
+  (clave 30087), rasterised to a mask that cuts the Blender mesh.
 
 ## How it works
 
 | Step | Module | Output |
 |------|--------|--------|
-| 1 | `fetch_dem.py` | Copernicus GLO-30 → 10 m heightmap + elevation + **municipio mask** + meta |
-| 2 | `make_textures.py` | hypsometric albedo stretched over the municipio's elevation range |
-| 3 | `blender_render.py` | subdivided grid → Displace → **Mask modifier cuts the mesh to the municipio** → hypsometric material → low sun → **Cycles/OptiX** render floating over paper (shadow catcher) |
-| 4 | `compose.py` | aged-paper plate: double border, title cartouche, `LEYENDA`, graticule + degree labels, place names, survey footer (Pillow) |
+| 1 | `fetch_dem.py` | GLO-30 → 10 m heightmap (lightly generalised) + elevation + **municipio mask** |
+| 2 | `make_textures.py` | **monochrome hypsometric** albedo (pale → deep blue, γ-curved) |
+| 3 | `blender_render.py` | subdivided grid → Displace → **Mask modifier cuts to the municipio** → soft NW key + cool fill → **Cycles/OptiX** render on transparent + shadow catcher |
+| 4 | `compose.py` | clean light background, the floating relief, restrained spaced-serif title + credit (Pillow) |
 
 ## Run
 
 ```bash
 uv sync
-uv run xalapa-relieve            # full build (≈ 4.5K poster)
+uv run xalapa-relieve            # full build (~4K poster)
 uv run xalapa-relieve --draft    # fast low-res preview
 uv run xalapa-relieve --skip-dem # reuse the cached DEM
 ```
 
-Requires a local **Blender** (5.x) on `PATH` and a CUDA/OptiX GPU for fast
-Cycles rendering (falls back to CPU). DEM/heightmap/render artefacts land in
-`data/` and `output/` (git-ignored); the finished plate is
-`output/xalapa_relieve_1953.png`.
+Needs a local **Blender** (5.x) on `PATH`; a CUDA/OptiX GPU makes Cycles fast
+(falls back to CPU). The finished poster is `output/xalapa_relieve.png`.
 
 ## Tuning
 
-Edit the constants at the top of `blender_render.py`: vertical exaggeration
-(`EXAG`), sun azimuth/altitude, camera tilt, paper colour.
+Top of `blender_render.py`: vertical exaggeration (`EXAG`), sun azimuth/altitude.
+Top of `make_textures.py`: the `COLORS` ramp and `GAMMA` (how much ground stays
+pale vs how much goes deep blue). `config.py`: the bbox / municipio.

@@ -22,10 +22,10 @@ OUT = ROOT / "output"
 meta = json.loads((DATA / "meta.json").read_text())
 
 # ---- tunables -------------------------------------------------------
-EXAG = 4.5            # vertical exaggeration (small municipio range -> push it)
+EXAG = 4.2            # vertical exaggeration (small municipio range -> push it)
 SUN_AZ = 318.0       # degrees (NW)
-SUN_ALT = 35.0       # degrees above horizon -> relief shadows
-SUN_ENERGY = 4.2
+SUN_ALT = 42.0       # degrees -> gentle, soft relief shadows (Greece-style)
+SUN_ENERGY = 3.8
 CAM_TILT = 9.0       # degrees off vertical (shows the raised plate edge)
 RES_X = int(sys.argv[-2]) if len(sys.argv) >= 3 else 1400
 SAMPLES = int(sys.argv[-1]) if len(sys.argv) >= 3 else 96
@@ -89,7 +89,7 @@ def make_terrain():
     sol.thickness = 0.4
     sol.offset = -1.0
     bpy.ops.object.modifier_apply(modifier=sol.name)
-    g.location.z = 0.9
+    g.location.z = 0.55          # sit close to the paper -> small soft shadow
     return g
 
 
@@ -120,17 +120,23 @@ def paper_plane():
 
 
 def sun():
+    # key light from the NW (Tanaka/Imhof convention)
     bpy.ops.object.light_add(type="SUN")
     s = bpy.context.active_object
     s.data.energy = SUN_ENERGY
-    s.data.angle = math.radians(2.0)   # soft-ish shadows
+    s.data.angle = math.radians(6.0)   # soft shadow penumbra
+    s.data.color = (1.0, 0.99, 0.97)
     az, al = math.radians(SUN_AZ), math.radians(SUN_ALT)
-    # unit vector pointing AT the sun (az from north +Y, clockwise to east +X)
     sun_dir = Vector((math.cos(al) * math.sin(az),
-                      math.cos(al) * math.cos(az),
-                      math.sin(al)))
-    travel = -sun_dir                  # direction the light travels
-    s.rotation_euler = travel.to_track_quat("-Z", "Y").to_euler()
+                      math.cos(al) * math.cos(az), math.sin(al)))
+    s.rotation_euler = (-sun_dir).to_track_quat("-Z", "Y").to_euler()
+    # weak fill straight down to lift the deep valleys (the "two suns" trick)
+    bpy.ops.object.light_add(type="SUN")
+    fwd = bpy.context.active_object
+    fwd.data.energy = 0.55
+    fwd.data.angle = math.radians(10.0)
+    fwd.data.color = (0.95, 0.97, 1.0)  # cool fill
+    fwd.rotation_euler = (0.0, 0.0, 0.0)
     return s
 
 
@@ -138,7 +144,7 @@ def camera():
     bpy.ops.object.camera_add()
     c = bpy.context.active_object
     c.data.type = "ORTHO"
-    c.data.ortho_scale = max(W_km, H_km) * 1.12
+    c.data.ortho_scale = max(W_km, H_km) * 1.42   # clean margin around the plate
     t = math.radians(CAM_TILT)
     dist = max(W_km, H_km) * 2.0
     c.location = (0.0, -math.sin(t) * dist, math.cos(t) * dist + 3)
@@ -166,8 +172,8 @@ def setup_render():
     # soft sky fill so shaded slopes aren't pure black
     w = bpy.data.worlds.new("w"); sc.world = w
     w.use_nodes = True
-    w.node_tree.nodes["Background"].inputs[0].default_value = (0.85, 0.86, 0.9, 1.0)
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.4
+    w.node_tree.nodes["Background"].inputs[0].default_value = (0.90, 0.92, 0.95, 1.0)
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.6
 
 
 def lonlat_to_world(lon, lat, z):
@@ -194,11 +200,10 @@ def project_points(cam):
         co = world_to_camera_view(sc, cam, world)
         return [co.x * RES_X, (1 - co.y) * RES_Y]
 
-    # places inside the municipio of Xalapa
+    # places inside the municipio of Xalapa (verified coordinates only)
     places = {
-        "Xalapa": (-96.9170, 19.5285),
-        "El Castillo": (-96.8585, 19.5070),
-        "Las Trancas": (-96.8730, 19.5320),
+        "Xalapa": (-96.9170, 19.5285),                 # Parque Juarez
+        "Cerro de Macuiltepetl": (-96.92083, 19.54833),  # 1,522 m volcanic cone
     }
     out = {"places": {n: px(lonlat_to_world(lo, la, terr_z(lo, la)))
                       for n, (lo, la) in places.items()}}

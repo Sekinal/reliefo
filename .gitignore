@@ -1,7 +1,7 @@
 data/
 output/*
 !output/.gitkeep
-!output/xalapa_relieve_1953.png
+!output/xalapa_relieve.png
 __pycache__/
 .venv/
 *.pyc

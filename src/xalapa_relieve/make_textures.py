@@ -8,9 +8,11 @@ import numpy as np
 from PIL import Image
 from . import config as C
 
-# low -> high, evenly spaced; temperate earth tones (no snow at ~1.6 km)
-COLORS = ["#33502f", "#4d6b38", "#728c45", "#9a9a54",
-          "#b89a5c", "#a87a50", "#8f6f5c", "#c4b8a6"]
+# Clean monochrome hypsometric (joewdavies / Greece style): pale lowlands
+# -> deep saturated blue highlands. Strong, modern, minimal.
+COLORS = ["#eef4f8", "#dbe8f3", "#bdd5ea", "#93b8dd",
+          "#6695cb", "#4172b4", "#274f93", "#183a72", "#0e2a55"]
+GAMMA = 1.6    # keep the low-mid ground pale; reserve deep blue for the heights
 
 
 def ramp(n=256):
@@ -23,8 +25,8 @@ def ramp(n=256):
 
 def hypsometric(dem, vmin, vmax):
     lut = ramp(256)
-    idx = (((dem - vmin) / (vmax - vmin)).clip(0, 1) * 255).astype(int)
-    return lut[idx].astype(np.uint8)
+    t = ((dem - vmin) / (vmax - vmin)).clip(0, 1) ** GAMMA
+    return lut[(t * 255).astype(int)].astype(np.uint8)
 
 
 def hillshade(dem, az=315.0, alt=45.0, z=0.00012):
@@ -45,11 +47,11 @@ def main():
     Image.fromarray(alb, "RGB").save(C.ALBEDO_PNG)
 
     hs = hillshade(dem)[..., None]
-    paper = np.array([216, 206, 189], dtype=np.float64)
-    prev = (alb * (0.35 + 0.8 * hs)).clip(0, 255)
-    prev = np.where(mask[..., None] == 1, prev, paper)
+    bg = np.array([233, 234, 236], dtype=np.float64)
+    prev = (alb.astype(np.float64) * (0.4 + 0.75 * hs)).clip(0, 255)
+    prev = np.where(mask[..., None] == 1, prev, bg)
     Image.fromarray(prev.astype(np.uint8), "RGB").save(C.DATA / "preview_shaded.png")
-    print(f"albedo + preview  range {vmin:.0f}..{vmax:.0f} m")
+    print(f"albedo + preview  range {vmin:.0f}..{vmax:.0f} m  (monochrome)")
 
 
 if __name__ == "__main__":

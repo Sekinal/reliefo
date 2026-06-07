@@ -9,6 +9,7 @@ import subprocess
 import numpy as np
 import rasterio
 from PIL import Image
+from scipy.ndimage import gaussian_filter, binary_erosion
 from . import config as C
 
 BASE = ("https://copernicus-dem-30m.s3.amazonaws.com/"
@@ -45,14 +46,19 @@ def main():
     with rasterio.open(mask_tif) as ms:
         mask = (ms.read(1) > 0).astype(np.uint8)
 
+    # clean the silhouette: trim boundary cells that cause displacement spikes
+    mask = binary_erosion(mask, iterations=3, border_value=0).astype(np.uint8)
+
     inside = dem[mask == 1]
     vmin, vmax = float(inside.min()), float(inside.max())
     print(f"DEM {dem.shape} px {px[0]:.1f}m  municipio elev {vmin:.0f}..{vmax:.0f} m "
           f"({mask.sum()} px inside)")
 
-    np.save(C.ELEV_NPY, dem)
+    np.save(C.ELEV_NPY, dem)            # raw, for accurate legend
     np.save(C.MASK_NPY, mask)
-    norm = ((dem - vmin) / (vmax - vmin)).clip(0, 1)
+    # balanced generalisation: clean ridges without crumpled micro-noise
+    dem_s = gaussian_filter(dem, sigma=1.9)
+    norm = ((dem_s - vmin) / (vmax - vmin)).clip(0, 1)
     Image.fromarray((norm * 65535).astype(np.uint16)).save(C.HEIGHT_PNG)
 
     C.META_JSON.write_text(json.dumps(dict(

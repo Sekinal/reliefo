@@ -1,7 +1,7 @@
 [project]
 name = "xalapa-relieve"
 version = "0.1.0"
-description = "Vintage 1953-survey-style raised-relief map of the Xalapa region, rendered in Blender from Copernicus GLO-30"
+description = "Clean monochrome shaded-relief poster of the Xalapa municipio, rendered in Blender from Copernicus GLO-30"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -9,6 +9,7 @@ dependencies = [
     "pillow>=12.2.0",
     "rasterio>=1.5.0",
     "requests>=2.34.2",
+    "scipy>=1.17.1",
 ]
 
 [project.scripts]
