@@ -22,11 +22,11 @@ OUT = ROOT / "output"
 meta = json.loads((DATA / "meta.json").read_text())
 
 # ---- tunables -------------------------------------------------------
-EXAG = 2.6            # vertical exaggeration
+EXAG = 4.5            # vertical exaggeration (small municipio range -> push it)
 SUN_AZ = 318.0       # degrees (NW)
-SUN_ALT = 37.0       # degrees above horizon -> relief shadows
+SUN_ALT = 35.0       # degrees above horizon -> relief shadows
 SUN_ENERGY = 4.2
-CAM_TILT = 10.0      # degrees off vertical (shows the raised plate edge)
+CAM_TILT = 9.0       # degrees off vertical (shows the raised plate edge)
 RES_X = int(sys.argv[-2]) if len(sys.argv) >= 3 else 1400
 SAMPLES = int(sys.argv[-1]) if len(sys.argv) >= 3 else 96
 CREAM = (0.882, 0.847, 0.788)   # aged paper
@@ -65,14 +65,31 @@ def make_terrain():
     m.mid_level = 0.0
     m.strength = RELIEF_km * EXAG
     bpy.ops.object.modifier_apply(modifier=m.name)
+
+    # --- cut the mesh to the municipio of Xalapa (mask) --------------
+    mask = np.load(DATA / "mask.npy")
+    mh, mw = mask.shape
+    n = len(g.data.vertices)
+    co = np.empty(n * 3, dtype=np.float64)
+    g.data.vertices.foreach_get("co", co)
+    co = co.reshape(n, 3)
+    col = np.clip(((co[:, 0] + W_km / 2) / W_km * (mw - 1)).round().astype(int), 0, mw - 1)
+    row = np.clip(((H_km / 2 - co[:, 1]) / H_km * (mh - 1)).round().astype(int), 0, mh - 1)
+    inside = mask[row, col] > 0
+    grp = g.vertex_groups.new(name="inside")
+    grp.add(np.nonzero(inside)[0].astype(int).tolist(), 1.0, "REPLACE")
+    mm = g.modifiers.new("mask", "MASK")
+    mm.vertex_group = "inside"
+    mm.threshold = 0.5
+    bpy.ops.object.modifier_apply(modifier=mm.name)
     bpy.ops.object.shade_smooth()
 
     # solid edge + float above the paper for a drop shadow
     sol = g.modifiers.new("sol", "SOLIDIFY")
-    sol.thickness = 0.35
+    sol.thickness = 0.4
     sol.offset = -1.0
     bpy.ops.object.modifier_apply(modifier=sol.name)
-    g.location.z = 0.95
+    g.location.z = 0.9
     return g
 
 
@@ -171,24 +188,24 @@ def project_points(cam):
         ix = int((lon - bb["west"]) / (bb["east"] - bb["west"]) * (w - 1))
         iy = int((bb["north"] - lat) / (bb["north"] - bb["south"]) * (h - 1))
         e = float(dem[max(0, min(h - 1, iy)), max(0, min(w - 1, ix))])
-        return (e - vmin) / 1000.0 * EXAG + 0.95
+        return (e - vmin) / 1000.0 * EXAG + 0.9
 
     def px(world):
         co = world_to_camera_view(sc, cam, world)
         return [co.x * RES_X, (1 - co.y) * RES_Y]
 
+    # places inside the municipio of Xalapa
     places = {
-        "Xalapa": (-96.9170, 19.5285), "Cofre de Perote": (-97.150, 19.492),
-        "Coatepec": (-96.961, 19.452), "Perote": (-97.241, 19.561),
-        "Banderilla": (-96.939, 19.586),
+        "Xalapa": (-96.9170, 19.5285),
+        "El Castillo": (-96.8585, 19.5070),
+        "Las Trancas": (-96.8730, 19.5320),
     }
     out = {"places": {n: px(lonlat_to_world(lo, la, terr_z(lo, la)))
                       for n, (lo, la) in places.items()}}
-    bb = meta["bbox"]
-    lons = [round(x, 2) for x in np.arange(-97.25, -96.45, 0.25)]
-    lats = [round(x, 2) for x in np.arange(19.25, 19.85, 0.25)]
+    lons = [round(x, 2) for x in np.arange(-96.95, -96.79, 0.05)]
+    lats = [round(x, 2) for x in np.arange(19.50, 19.61, 0.05)]
     out["grid"] = {"lons": lons, "lats": lats,
-                   "pts": {f"{lo},{la}": px(lonlat_to_world(lo, la, 0.95))
+                   "pts": {f"{lo},{la}": px(lonlat_to_world(lo, la, 0.9))
                            for lo in lons for la in lats}}
     out["res"] = [RES_X, RES_Y]
     (OUT / "points.json").write_text(json.dumps(out))

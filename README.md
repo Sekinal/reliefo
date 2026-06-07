@@ -1,22 +1,25 @@
 # xalapa-relieve
 
-A vintage **1953 Geological-Survey-style raised-relief plate** of the Xalapa
-region (Veracruz, México), rendered in **Blender** from the best free DEM and
-finished with an aged-paper cartouche, hypsometric legend, graticule and
-serif place names.
+A vintage **1953 Geological-Survey-style raised-relief plate** of the
+**municipio of Xalapa** (Veracruz, México), rendered in **Blender** and cut to
+the municipal boundary so only Xalapa floats on the paper — like the islands
+of the original Japan plate. Finished with an aged-paper cartouche,
+hypsometric legend, graticule and serif place names.
 
 ![Xalapa relief plate](output/xalapa_relieve_1953.png)
 
-It captures the dramatic west–east gradient: **Cofre de Perote (4,282 m)** in
-the west falling to the Gulf lowlands in the east, with Xalapa perched on the
-mid-slope.
+The terrain spans the municipio's full range, **660 – 1,596 m**: brown
+highlands in the west (with a volcanic cone near the centre) sloping to the
+green lowlands of the east.
 
 ## Data
 
-- **Elevation:** Copernicus DEM **GLO-30** (ESA, 30 m) — the authoritative free
-  global DEM — pulled straight from the public AWS bucket via GDAL `/vsicurl`,
-  mosaicked, cropped and reprojected to **UTM 14N** for true proportions.
-  Range in frame: **0 – 4,179 m**.
+- **Elevation:** Copernicus DEM **GLO-30** (ESA) — the authoritative free
+  global DEM — pulled from the public AWS bucket via GDAL `/vsicurl`,
+  reprojected to **UTM 14N** and resampled to a smooth **10 m**.
+- **Boundary:** INEGI **Marco Geoestadístico 2020** — the Xalapa municipio
+  polygon (clave 30087), rasterised to a mask that cuts the Blender mesh to the
+  municipal silhouette.
 
 Not a fork of [geoblender](https://github.com/joewdavies/geoblender) — a fresh
 pipeline written from scratch, but in the same raised-relief spirit.
@@ -25,9 +28,9 @@ pipeline written from scratch, but in the same raised-relief spirit.
 
 | Step | Module | Output |
 |------|--------|--------|
-| 1 | `fetch_dem.py` | Copernicus GLO-30 → 16-bit heightmap + elevation array + meta |
-| 2 | `make_textures.py` | vintage hypsometric albedo (+ shaded preview) |
-| 3 | `blender_render.py` | subdivided grid → Displace → hypsometric material → low sun → **Cycles/OptiX** render of a plate floating over paper (shadow catcher), orthographic slightly-tilted camera |
+| 1 | `fetch_dem.py` | Copernicus GLO-30 → 10 m heightmap + elevation + **municipio mask** + meta |
+| 2 | `make_textures.py` | hypsometric albedo stretched over the municipio's elevation range |
+| 3 | `blender_render.py` | subdivided grid → Displace → **Mask modifier cuts the mesh to the municipio** → hypsometric material → low sun → **Cycles/OptiX** render floating over paper (shadow catcher) |
 | 4 | `compose.py` | aged-paper plate: double border, title cartouche, `LEYENDA`, graticule + degree labels, place names, survey footer (Pillow) |
 
 ## Run

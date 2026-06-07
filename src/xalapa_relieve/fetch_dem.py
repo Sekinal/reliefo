@@ -1,8 +1,7 @@
-"""Fetch the best free DEM for the Xalapa region: Copernicus DEM GLO-30
-(ESA, 30 m, the authoritative global elevation model), straight from the
-public AWS bucket via GDAL /vsicurl. Mosaic the needed 1-degree tiles,
-crop to the bbox and reproject to UTM 14N (metres) so the relief has
-true proportions. Then write a 16-bit heightmap + elevation array + meta.
+"""Fetch Copernicus DEM GLO-30 for the Xalapa municipio bbox, reproject to
+UTM 14N (resampled to a smooth 10 m), and rasterise the municipio polygon to
+a mask aligned to the DEM grid. Heightmap is normalised over the elevation
+range *inside* the municipio so the hypsometric palette uses its full span.
 """
 from __future__ import annotations
 import json
@@ -14,47 +13,54 @@ from . import config as C
 
 BASE = ("https://copernicus-dem-30m.s3.amazonaws.com/"
         "Copernicus_DSM_COG_10_{t}_DEM/Copernicus_DSM_COG_10_{t}_DEM.tif")
-# 1-degree tiles covering the bbox (SW-corner naming): lon -98..-96, lat 19..20
-TILES = ["N19_00_W097_00", "N19_00_W098_00"]
-UTM = "EPSG:32614"          # Xalapa is in UTM zone 14N
-RES = 30                    # metres
+TILES = ["N19_00_W097_00"]          # municipio sits inside lon -97..-96, lat 19..20
+UTM = "EPSG:32614"
+
+
+def sh(cmd):
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def main():
     bb = C.BBOX
-    srcs = [f"/vsicurl/{BASE.format(t=t)}" for t in TILES]
     dem_tif = C.DATA / "dem_utm.tif"
-    cmd = [
-        "gdalwarp", "-overwrite",
-        "-t_srs", UTM, "-te_srs", "EPSG:4326",
+    sh(["gdalwarp", "-overwrite", "-t_srs", UTM, "-te_srs", "EPSG:4326",
         "-te", str(bb["west"]), str(bb["south"]), str(bb["east"]), str(bb["north"]),
-        "-tr", str(RES), str(RES), "-r", "cubicspline",
-        "-co", "COMPRESS=DEFLATE", "-co", "TILED=YES",
-        *srcs, str(dem_tif),
-    ]
-    print("gdalwarp Copernicus GLO-30 ->", dem_tif.name)
-    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
+        "-tr", str(C.RES_M), str(C.RES_M), "-r", "cubicspline",
+        f"/vsicurl/{BASE.format(t=TILES[0])}", str(dem_tif)])
 
     with rasterio.open(dem_tif) as ds:
         dem = ds.read(1).astype(np.float32)
-        nodata = ds.nodata
-        tr = ds.transform
-        px = (tr.a, -tr.e)  # metres per pixel (x, y)
-    if nodata is not None:
-        dem = np.where(dem == nodata, np.nan, dem)
-    vmin = float(np.nanmin(dem)); vmax = float(np.nanmax(dem))
-    dem = np.nan_to_num(dem, nan=vmin)
-    print(f"DEM {dem.shape}  px {px[0]:.1f} m  elevation {vmin:.0f}..{vmax:.0f} m")
+        b = ds.bounds
+        W, H = ds.width, ds.height
+        px = (ds.transform.a, -ds.transform.e)
 
-    np.save(C.ELEV_NPY, dem.astype(np.float32))
-    norm = (dem - vmin) / (vmax - vmin)
-    Image.fromarray((norm * 65535).clip(0, 65535).astype(np.uint16)).save(C.HEIGHT_PNG)
+    # rasterise municipio polygon -> mask on the exact DEM grid
+    mun_utm = C.DATA / "mun_utm.gpkg"
+    sh(["ogr2ogr", "-overwrite", "-t_srs", UTM, str(mun_utm), str(C.MUN_GEOJSON)])
+    mask_tif = C.DATA / "mask.tif"
+    sh(["gdal_rasterize", "-burn", "1", "-init", "0", "-ot", "Byte",
+        "-te", str(b.left), str(b.bottom), str(b.right), str(b.top),
+        "-ts", str(W), str(H), str(mun_utm), str(mask_tif)])
+    with rasterio.open(mask_tif) as ms:
+        mask = (ms.read(1) > 0).astype(np.uint8)
 
-    meta = dict(bbox=bb, source="Copernicus DEM GLO-30 (ESA)", crs=UTM,
-                px_m=px, shape=list(dem.shape), width=dem.shape[1],
-                height=dem.shape[0], elev_min=vmin, elev_max=vmax)
-    C.META_JSON.write_text(json.dumps(meta, indent=2))
-    print("saved:", C.HEIGHT_PNG.name, C.ELEV_NPY.name, C.META_JSON.name)
+    inside = dem[mask == 1]
+    vmin, vmax = float(inside.min()), float(inside.max())
+    print(f"DEM {dem.shape} px {px[0]:.1f}m  municipio elev {vmin:.0f}..{vmax:.0f} m "
+          f"({mask.sum()} px inside)")
+
+    np.save(C.ELEV_NPY, dem)
+    np.save(C.MASK_NPY, mask)
+    norm = ((dem - vmin) / (vmax - vmin)).clip(0, 1)
+    Image.fromarray((norm * 65535).astype(np.uint16)).save(C.HEIGHT_PNG)
+
+    C.META_JSON.write_text(json.dumps(dict(
+        bbox=bb, source="Copernicus DEM GLO-30 (ESA)", crs=UTM, px_m=px,
+        width=W, height=H, shape=[int(dem.shape[0]), int(dem.shape[1])],
+        elev_min=vmin, elev_max=vmax,
+        utm_bounds=[b.left, b.bottom, b.right, b.top]), indent=2))
+    print("saved heightmap, elevation, mask, meta")
 
 
 if __name__ == "__main__":
