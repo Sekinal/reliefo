@@ -25,14 +25,15 @@ def test_bbox_must_be_ordered():
         BBox(west=0, south=0, east=-1, north=1)
 
 
-def test_lidar_requires_charts(tmp_path):
+def test_lidar_charts_optional(tmp_path):
+    # charts are auto-discovered from the bbox, so none need be given
     toml = tmp_path / "m.toml"
     toml.write_text(
         '[map]\nname="X"\nbbox={west=-97,south=19,east=-96,north=20}\n'
         '[boundary]\nfile="b.geojson"\n'
         '[dem]\nsource="lidar"\n')
-    with pytest.raises(ValueError, match="charts"):
-        load_config(toml)
+    cfg = load_config(toml)
+    assert cfg.dem.source == "lidar" and cfg.dem.charts == []
 
 
 def test_minimal_cem_config(tmp_path):

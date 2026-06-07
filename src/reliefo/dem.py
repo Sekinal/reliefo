@@ -30,6 +30,7 @@ from scipy.ndimage import (
 )
 
 from ._util import info, meters_per_degree, run, step, warn
+from .charts import discover_charts
 from .config import Config
 
 CEM_WCS = "https://gaia.inegi.org.mx/geoserver/wcs"
@@ -81,8 +82,9 @@ def _lidar_chart(cfg: Config, cve: str) -> object:
 
 def _fetch_lidar(cfg: Config) -> None:
     bb = cfg.map.bbox
+    charts = cfg.dem.charts or discover_charts(bb)
     vrts = []
-    for cve in cfg.dem.charts:
+    for cve in charts:
         try:
             grid = _lidar_chart(cfg, cve)
         except Exception as e:                          # noqa: BLE001

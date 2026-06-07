@@ -225,9 +225,7 @@ def load_config(path: str | Path) -> Config:
     cfg.out.mkdir(parents=True, exist_ok=True)
 
     # validate source-specific requirements early, with friendly messages
-    if cfg.dem.source == "lidar" and not cfg.dem.charts:
-        raise ValueError("dem.source='lidar' needs dem.charts = [...] "
-                         "(the 1:10,000 INEGI chart codes covering your bbox)")
+    # (dem.source='lidar' needs no charts: they're auto-discovered from the bbox)
     if cfg.dem.source == "local" and cfg.dem.file is None:
         raise ValueError("dem.source='local' needs dem.file = 'path/to/dem.tif'")
     if cfg.labels.enabled and cfg.labels.source == "denue" and not cfg.labels.cvemun:
