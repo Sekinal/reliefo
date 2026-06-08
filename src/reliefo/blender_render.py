@@ -193,9 +193,12 @@ def setup_render():
     sc.cycles.use_denoising = True
     prefs = bpy.context.preferences.addons["cycles"].preferences
     prefs.compute_device_type = "OPTIX"
+    prefs.refresh_devices()                     # enumerate GPUs on a fresh Blender
+    gpus = [d for d in prefs.get_devices_for_type("OPTIX") if d.type != "CPU"]
     for d in prefs.get_devices_for_type("OPTIX"):
-        d.use = ("CPU" not in d.name.upper())
-    sc.cycles.device = "GPU"
+        d.use = d.type != "CPU"
+    sc.cycles.device = "GPU" if gpus else "CPU"
+    print("Cycles devices:", [(d.name, d.use) for d in prefs.devices])
     sc.render.resolution_x = RES_X
     sc.render.resolution_y = RES_Y
     sc.render.film_transparent = True
