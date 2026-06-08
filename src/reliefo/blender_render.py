@@ -171,6 +171,10 @@ def camera():
     dist = max(W_km, H_km) * 2.0
     c.location = (0.0, -math.sin(t) * dist, math.cos(t) * dist + 3)
     c.rotation_euler = (t, 0.0, 0.0)
+    # default clip_end is 1000; a large (state-scale) plate sits past it -> set
+    # the clip planes from the scene size so the plate is always in range.
+    c.data.clip_start = max(0.1, dist * 0.05)
+    c.data.clip_end = dist * 4.0
     bpy.context.scene.camera = c
     return c
 
@@ -195,7 +199,7 @@ def setup_render():
     sc.world = w
     w.use_nodes = True
     w.node_tree.nodes["Background"].inputs[0].default_value = (0.90, 0.92, 0.95, 1.0)
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.6
+    w.node_tree.nodes["Background"].inputs[1].default_value = CFG.get("sky", 0.6)
 
 
 def lonlat_to_world(lon, lat, z):

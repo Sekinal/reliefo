@@ -82,6 +82,7 @@ class ReliefCfg(BaseModel):
     sun_azimuth: float = 318.0
     sun_altitude: float = 42.0
     sun_energy: float = 3.8
+    sky: float = 0.6                           # world/ambient strength
     cam_tilt: float = 9.0
     # plate thickness (km). Kept thin: a thick solidify self-intersects at the
     # displaced municipio boundary and erupts into "tower" flap artifacts.

@@ -24,6 +24,10 @@ except Exception:                                  # noqa: BLE001
 PALETTES: dict[str, tuple[tuple, float]] = {
     # DEFAULT — genuine Crameri 'oslo', reversed: pale lowlands -> deep navy.
     "oslo":    (("cm", "oslo", True, 0.04, 0.97), 1.30),
+    # like oslo but lowlands stay a visible light blue (not white) and the deep
+    # navy is reserved for peaks — for maps from sea level to high mountains
+    # (e.g. a whole state). Low gamma spreads the (skewed) lowland elevations.
+    "oslo_sea": (("cm", "oslo", True, 0.12, 0.82), 0.55),
     "lajolla": (("cm", "lajolla", False, 0.05, 0.98), 1.20),   # warm, uniform
     "davos":   (("cm", "davos", True, 0.05, 0.97), 1.25),      # teal, uniform
     "bukavu":  (("cm", "bukavu", False, 0.5, 1.0), 1.0),        # topo multihue

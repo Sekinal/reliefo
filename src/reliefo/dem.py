@@ -45,9 +45,16 @@ LIDAR_INFO = "https://www.inegi.org.mx/app/geo2/elevacionesmex/getF10KDescarga.d
 def _fetch_cem(cfg: Config) -> None:
     bb = cfg.map.bbox
     lon_m, _ = meters_per_degree(bb.center[1])
-    w = round((bb.east - bb.west) * lon_m / CEM_NATIVE_M)
-    h = round((bb.north - bb.south) * 110_540.0 / CEM_NATIVE_M)
-    info(f"INEGI CEM 4.0 (15 m) WCS  {w}×{h}px")
+    # request at the coarser of native/output res so a whole-state bbox stays a
+    # sane size, then warp to res_m; cap the request so the WCS doesn't choke.
+    req_m = max(cfg.dem.res_m, CEM_NATIVE_M)
+    w = round((bb.east - bb.west) * lon_m / req_m)
+    h = round((bb.north - bb.south) * 110_540.0 / req_m)
+    cap = 8000
+    if max(w, h) > cap:
+        s = cap / max(w, h)
+        w, h = round(w * s), round(h * s)
+    info(f"INEGI CEM 4.0 WCS  {w}×{h}px  (≈{req_m:.0f} m)")
     r = httpx.get(CEM_WCS, timeout=120.0, params={
         "service": "WCS", "version": "1.0.0", "request": "GetCoverage",
         "coverage": CEM_COVERAGE, "CRS": "EPSG:4326",
@@ -164,7 +171,9 @@ def build(cfg: Config) -> None:
         dem = ds.read(1).astype(np.float32)
         bounds, W, H = ds.bounds, ds.width, ds.height
         px = (ds.transform.a, -ds.transform.e)
-    dem = np.where(dem < -1000, np.nan, dem)
+    # drop nodata fills (negative sentinels and the WCS's 32767 high fill);
+    # no real terrain is below -500 m or above ~9000 m.
+    dem = np.where((dem < -500) | (dem > 9000), np.nan, dem)
 
     mask = _boundary_mask(cfg, bounds, W, H) & np.isfinite(dem)
     if cfg.dem.smooth_mask:

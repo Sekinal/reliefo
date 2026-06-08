@@ -1,0 +1,34 @@
+# Veracruz — the ENTIRE state. Different scale from the city maps: 5 m LiDAR is
+# impossible over ~72,000 km², so this uses INEGI CEM (15 m, requested coarse and
+# warped to ~100 m), cut to the state boundary. Higher exaggeration than a
+# municipio (VE is scale-dependent: a small-scale map of a big area needs more).
+#
+#   uv run reliefo build examples/veracruz.toml
+
+[paths]
+data = "../data/veracruz"
+out  = "../output"
+
+[map]
+name     = "Veracruz"
+slug     = "veracruz"
+title    = "VERACRUZ"
+subtitle = "MÉXICO"
+bbox     = { west = -98.722, south = 17.097, east = -93.568, north = 22.512 }
+
+[boundary]
+file = "../data/boundaries/veracruz_estado.geojson"
+
+[dem]
+source = "cem"        # INEGI CEM (auto-coarsened for the large area)
+res_m  = 100
+
+[relief]
+palette      = "oslo_sea"
+exaggeration = 6.0    # state scale -> more VE (terrain-per-pixel is gentle)
+sun_energy   = 2.0    # flat map -> dim, color-dominant lighting
+sky          = 0.22
+
+[render]
+resolution = 4000
+samples    = 140

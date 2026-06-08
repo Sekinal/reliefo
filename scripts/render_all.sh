@@ -5,9 +5,11 @@
 set -u
 cd "$(dirname "$0")/.."
 
-# importance order (Veracruz handled separately — no clean OSM municipio polygon)
-CITIES=(cordoba orizaba coatzacoalcos poza_rica boca_del_rio minatitlan tuxpan \
-        san_andres_tuxtla papantla coatepec perote catemaco huatusco zongolica xico)
+# Xalapa first (re-render the hero with the fixes), then importance order.
+# (Veracruz handled separately — no clean OSM municipio polygon.)
+CITIES=(xalapa xalapa_clean cordoba orizaba coatzacoalcos poza_rica boca_del_rio \
+        minatitlan tuxpan san_andres_tuxtla papantla coatepec perote catemaco \
+        huatusco zongolica xico)
 
 for slug in "${CITIES[@]}"; do
   if [ -f "output/$slug.png" ]; then
