@@ -79,7 +79,8 @@ def build(cfg: Config) -> None:
     b = meta["utm_bounds"]
     W, H = meta["width"], meta["height"]
 
-    src = cfg.streets.osm_file or _overpass_geojson(cfg)
+    osm = cfg.streets.osm_file
+    src = osm if (osm and osm.exists()) else _overpass_geojson(cfg)
     roads_utm = cfg.data / "roads_utm.gpkg"
     roads_utm.unlink(missing_ok=True)              # avoid stale layers
     # clip to the municipio and keep only highways; OSM files expose a 'lines'
