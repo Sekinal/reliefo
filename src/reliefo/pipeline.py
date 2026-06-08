@@ -15,7 +15,7 @@ BLENDER_SCRIPT = Path(__file__).parent / "blender_render.py"
 EMISSION_COLOR = (1.0, 0.82, 0.48)              # warm lamp glow for streets
 
 
-def _write_render_cfg(cfg: Config) -> None:
+def _write_render_cfg(cfg: Config, subdiv: int) -> None:
     cfg.render_cfg_json.write_text(json.dumps({
         "data": str(cfg.data), "out": str(cfg.out),
         "exaggeration": cfg.relief.exaggeration,
@@ -25,14 +25,15 @@ def _write_render_cfg(cfg: Config) -> None:
         "sky": cfg.relief.sky,
         "cam_tilt": cfg.relief.cam_tilt,
         "solidify": cfg.relief.solidify,
+        "subdiv_max": subdiv,
         "streets_glow": cfg.streets.glow,
         "emission_color": list(EMISSION_COLOR),
     }))
 
 
-def _render(cfg: Config, res_x: int, samples: int) -> None:
-    step(f"blender · {res_x}px · {samples} samples")
-    _write_render_cfg(cfg)
+def _render(cfg: Config, res_x: int, samples: int, subdiv: int) -> None:
+    step(f"blender · {res_x}px · {samples} samples · mesh≤{subdiv}")
+    _write_render_cfg(cfg, subdiv)
     cmd = ["blender", "--background", "--factory-startup",
            "--python", str(BLENDER_SCRIPT), "--",
            str(cfg.render_cfg_json), str(res_x), str(samples)]
@@ -41,7 +42,7 @@ def _render(cfg: Config, res_x: int, samples: int) -> None:
 
 def build(cfg: Config, *, draft: bool = False, skip_dem: bool = False,
           clean: bool = False, res: int | None = None,
-          samples: int | None = None) -> Path:
+          samples: int | None = None, subdiv: int = 3000) -> Path:
     res = res or (1400 if draft else cfg.render.resolution)
     samples = samples or (48 if draft else cfg.render.samples)
     if clean:                                      # variant A: no streets/names
@@ -55,6 +56,6 @@ def build(cfg: Config, *, draft: bool = False, skip_dem: bool = False,
     if cfg.labels.enabled:
         labels.build(cfg)
     textures.build(cfg)
-    _render(cfg, res, samples)
+    _render(cfg, res, samples, subdiv)
     compose.build(cfg)
     return cfg.poster_png

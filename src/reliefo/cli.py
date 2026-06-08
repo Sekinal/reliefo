@@ -24,11 +24,12 @@ def build(
                                help="Force streets/labels off (variant A)."),
     res: int | None = typer.Option(None, help="Override render width (px)."),
     samples: int | None = typer.Option(None, help="Override Cycles samples."),
+    subdiv: int = typer.Option(3000, help="Max mesh grid subdivision (full detail)."),
 ) -> None:
     """Run the full pipeline for CONFIG and write the poster to its output dir."""
     cfg = load_config(config)
     pipeline.build(cfg, draft=draft, skip_dem=skip_dem, clean=clean,
-                   res=res, samples=samples)
+                   res=res, samples=samples, subdiv=subdiv)
     console.print("[bold green]✓[/bold green] done")
 
 
