@@ -189,12 +189,12 @@ class Config(BaseModel):
         return self.data / "boundary_utm.gpkg"
 
     @property
-    def render_png(self) -> Path:
-        return self.out / "render.png"
+    def render_png(self) -> Path:                  # per-slug: lets cities render in parallel
+        return self.out / f"{self.slug}_render.png"
 
     @property
     def points_json(self) -> Path:
-        return self.out / "points.json"
+        return self.out / f"{self.slug}_points.json"
 
     @property
     def render_cfg_json(self) -> Path:

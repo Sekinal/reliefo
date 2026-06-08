@@ -18,6 +18,7 @@ EMISSION_COLOR = (1.0, 0.82, 0.48)              # warm lamp glow for streets
 def _write_render_cfg(cfg: Config, subdiv: int) -> None:
     cfg.render_cfg_json.write_text(json.dumps({
         "data": str(cfg.data), "out": str(cfg.out),
+        "render_png": str(cfg.render_png), "points_json": str(cfg.points_json),
         "exaggeration": cfg.relief.exaggeration,
         "sun_azimuth": cfg.relief.sun_azimuth,
         "sun_altitude": cfg.relief.sun_altitude,

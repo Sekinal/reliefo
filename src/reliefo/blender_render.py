@@ -247,7 +247,7 @@ def project_zones(cam):
                                                   terr_z(z["lon"], z["lat"])))}
                         for z in zones]
         print("projected", len(zones), "zones")
-    (OUT / "points.json").write_text(json.dumps(out, ensure_ascii=False))
+    (Path(CFG["points_json"])).write_text(json.dumps(out, ensure_ascii=False))
 
 
 def main():
@@ -259,11 +259,11 @@ def main():
     cam = camera()
     setup_render()
     project_zones(cam)
-    bpy.context.scene.render.filepath = str(OUT / "render.png")
+    bpy.context.scene.render.filepath = CFG["render_png"]
     print(f"rendering {RES_X}x{RES_Y} samples={SAMPLES} "
           f"plate {W_km:.0f}x{H_km:.0f} km relief {RELIEF_km:.1f}km x{EXAG}")
     bpy.ops.render.render(write_still=True)
-    print("saved", OUT / "render.png")
+    print("saved", CFG["render_png"])
 
 
 main()
