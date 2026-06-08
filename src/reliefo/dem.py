@@ -148,7 +148,17 @@ def _clean_mask(mask: np.ndarray) -> np.ndarray:
 # --------------------------------------------------------------------------- #
 def build(cfg: Config) -> None:
     step(f"DEM · {cfg.dem.source}")
-    _SOURCES[cfg.dem.source](cfg)
+    source_used = cfg.dem.source
+    try:
+        _SOURCES[cfg.dem.source](cfg)
+    except RuntimeError as e:
+        if cfg.dem.source != "lidar":
+            raise
+        # not all of Mexico has 5 m LiDAR (e.g. parts of the coast / altiplano);
+        # fall back to the always-available 15 m CEM so the city still renders.
+        warn(f"LiDAR unavailable ({e}); falling back to CEM 15 m")
+        _fetch_cem(cfg)
+        source_used = "cem"
 
     with rasterio.open(cfg.data / "dem_utm.tif") as ds:
         dem = ds.read(1).astype(np.float32)
@@ -184,7 +194,7 @@ def build(cfg: Config) -> None:
 
     source_label = {"cem": "INEGI CEM 4.0 (15 m)",
                     "lidar": "INEGI LiDAR 5 m (terreno, bare-earth)",
-                    "local": "local DEM"}[cfg.dem.source]
+                    "local": "local DEM"}[source_used]
     cfg.meta_json.write_text(json.dumps(dict(
         bbox=cfg.map.bbox.as_dict(), source=source_label, crs=cfg.utm, px_m=px,
         width=W, height=H, shape=[int(dem.shape[0]), int(dem.shape[1])],
