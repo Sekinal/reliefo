@@ -20,13 +20,16 @@ def build(
     draft: bool = typer.Option(False, "--draft", help="Fast low-res preview."),
     skip_dem: bool = typer.Option(False, "--skip-dem",
                                   help="Reuse the cached DEM (skip download)."),
+    clean: bool = typer.Option(False, "--clean",
+                               help="Force streets/labels off (variant A)."),
     res: int | None = typer.Option(None, help="Override render width (px)."),
     samples: int | None = typer.Option(None, help="Override Cycles samples."),
 ) -> None:
     """Run the full pipeline for CONFIG and write the poster to its output dir."""
     cfg = load_config(config)
-    out = pipeline.build(cfg, draft=draft, skip_dem=skip_dem, res=res, samples=samples)
-    console.print(f"[bold green]✓[/bold green] {out}")
+    pipeline.build(cfg, draft=draft, skip_dem=skip_dem, clean=clean,
+                   res=res, samples=samples)
+    console.print("[bold green]✓[/bold green] done")
 
 
 @app.command()

@@ -201,8 +201,16 @@ class Config(BaseModel):
         return self.data / "render_cfg.json"
 
     @property
-    def poster_png(self) -> Path:
+    def poster_png(self) -> Path:                  # A: clean (relief + legend)
         return self.out / f"{self.slug}.png"
+
+    @property
+    def poster_streets_png(self) -> Path:          # B: + streets
+        return self.out / f"{self.slug}_streets.png"
+
+    @property
+    def poster_streets_names_png(self) -> Path:    # C: + streets + names
+        return self.out / f"{self.slug}_streets_names.png"
 
 
 def _resolve(p: Path | None, root: Path) -> Path | None:

@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 
 from . import compose, dem, labels, streets, textures
-from ._util import info, step
+from ._util import step
 from .config import Config
 
 BLENDER_SCRIPT = Path(__file__).parent / "blender_render.py"
@@ -40,9 +40,13 @@ def _render(cfg: Config, res_x: int, samples: int) -> None:
 
 
 def build(cfg: Config, *, draft: bool = False, skip_dem: bool = False,
-          res: int | None = None, samples: int | None = None) -> Path:
+          clean: bool = False, res: int | None = None,
+          samples: int | None = None) -> Path:
     res = res or (1400 if draft else cfg.render.resolution)
     samples = samples or (48 if draft else cfg.render.samples)
+    if clean:                                      # variant A: no streets/names
+        cfg.streets.enabled = False
+        cfg.labels.enabled = False
 
     if not skip_dem:
         dem.build(cfg)
@@ -53,5 +57,4 @@ def build(cfg: Config, *, draft: bool = False, skip_dem: bool = False,
     textures.build(cfg)
     _render(cfg, res, samples)
     compose.build(cfg)
-    info(f"done -> {cfg.poster_png}")
     return cfg.poster_png

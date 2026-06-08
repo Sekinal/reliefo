@@ -18,9 +18,21 @@ EX = ROOT / "examples"
 UA = "reliefo/0.2 (relief poster generator; muxxeroerty@gmail.com)"
 NOMINATIM = "https://nominatim.openstreetmap.org/search"
 
+DENUE_CSV = ("/home/ieqr/Desktop/research/denue_xalapa/data/"
+             "conjunto_de_datos/denue_inegi_30_.csv")
+# DENUE municipio code per city (for zone labels)
+CVEMUN = {
+    "Córdoba": "044", "Orizaba": "118", "Coatzacoalcos": "039", "Poza Rica": "131",
+    "Boca del Río": "028", "Minatitlán": "108", "Tuxpan": "189",
+    "San Andrés Tuxtla": "141", "Papantla": "124", "Coatepec": "038",
+    "Perote": "128", "Catemaco": "032", "Huatusco": "071", "Zongolica": "201",
+    "Xico": "092",
+}
+
 # (display name, Nominatim query, poster title) — IMPORTANCE ORDER
+# (Veracruz port is omitted: no clean OSM municipio polygon, and the name is
+#  reserved for the whole-state map, examples/veracruz.toml.)
 CITIES = [
-    ("Veracruz",           "Veracruz, Veracruz, Mexico",              "VERACRUZ"),
     ("Córdoba",            "Córdoba, Veracruz, Mexico",               "CÓRDOBA"),
     ("Orizaba",            "Orizaba, Veracruz, Mexico",               "ORIZABA"),
     ("Coatzacoalcos",      "Coatzacoalcos, Veracruz, Mexico",         "COATZACOALCOS"),
@@ -114,7 +126,16 @@ res_m  = 5
 
 [relief]
 palette = "oslo"
-# exaggeration omitted -> auto from terrain steepness (capped at 1.5)
+
+[streets]
+enabled  = true
+osm_file = "../data/mexico.osm.pbf"
+
+[labels]
+enabled   = true
+source    = "denue"
+cvemun    = "{cvemun}"
+denue_csv = "{denue}"
 
 [render]
 resolution = 4000
@@ -142,7 +163,8 @@ def main():
             json.dumps({"type": "FeatureCollection", "features": [feat]}))
         w, s, e, n = bbox_of(b["geom"])
         (EX / f"{slug}.toml").write_text(TOML.format(
-            disp=disp, slug=slug, title=title, i=i, w=w, s=s, e=e, n=n))
+            disp=disp, slug=slug, title=title, i=i, w=w, s=s, e=e, n=n,
+            cvemun=CVEMUN.get(disp, ""), denue=DENUE_CSV))
         print(f"{i:>2}  {disp:18}  {slug:18}  {b['span']:.3f}  "
               f"[{w},{s},{e},{n}]")
         time.sleep(1.2)                                  # Nominatim etiquette

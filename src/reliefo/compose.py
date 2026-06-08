@@ -143,6 +143,20 @@ def color_legend(img, S, vmin, vmax, palette):
             SOFT, ls=1 * S, anchor="ma")
 
 
+def _overlays(cfg, img, S, meta, streets):
+    """Elevation legend + title + subtitle + credit, drawn in place."""
+    color_legend(img, S, meta["elev_min"], meta["elev_max"], cfg.relief.palette)
+    d = ImageDraw.Draw(img)
+    m = int(70 * S)
+    tracked(d, (m, m), cfg.map.headline, f(86 * S, "r"), INK, ls=22 * S)
+    if cfg.map.subtitle:
+        tracked(d, (m + 3 * S, m + 116 * S),
+                cfg.map.subtitle, f(23 * S, "l"), SOFT, ls=9 * S)
+    cred = f"DEM: {meta['source']}" + ("   ·   red vial OSM" if streets else "")
+    tracked(d, (m, img.height - m), cred, f(17 * S, "l"), SOFT, ls=2 * S)
+    return img
+
+
 def build(cfg: Config) -> None:
     step("compose")
     relief = Image.open(cfg.render_png).convert("RGBA")
@@ -151,23 +165,22 @@ def build(cfg: Config) -> None:
     streets = cfg.emission_png.exists()
     meta = json.loads(cfg.meta_json.read_text())
 
-    img = clean_bg(rw, rh)
-    img.paste(relief, (0, 0), relief)
+    def base():
+        img = clean_bg(rw, rh)
+        img.paste(relief, (0, 0), relief)
+        return img
+
     if streets:
-        img = warm_bloom(img, relief)
-        img = label_zones(cfg, img, S)
-
-    color_legend(img, S, meta["elev_min"], meta["elev_max"], cfg.relief.palette)
-    d = ImageDraw.Draw(img)
-
-    m = int(70 * S)
-    tracked(d, (m, m), cfg.map.headline, f(86 * S, "r"), INK, ls=22 * S)
-    if cfg.map.subtitle:
-        tracked(d, (m + 3 * S, m + 116 * S),
-                cfg.map.subtitle, f(23 * S, "l"), SOFT, ls=9 * S)
-
-    cred = f"DEM: {meta['source']}" + ("   ·   red vial OSM" if streets else "")
-    tracked(d, (m, rh - m), cred, f(17 * S, "l"), SOFT, ls=2 * S)
-
-    img.save(cfg.poster_png, quality=95)
-    info(f"saved {cfg.poster_png}  {img.size}")
+        # B — streets, no names
+        b = _overlays(cfg, warm_bloom(base(), relief), S, meta, True)
+        b.save(cfg.poster_streets_png, quality=95)
+        # C — streets + names
+        c = label_zones(cfg, warm_bloom(base(), relief), S)
+        c = _overlays(cfg, c, S, meta, True)
+        c.save(cfg.poster_streets_names_png, quality=95)
+        info(f"saved {cfg.poster_streets_png.name} + {cfg.poster_streets_names_png.name}")
+    else:
+        # A — clean (relief + legend + title)
+        a = _overlays(cfg, base(), S, meta, False)
+        a.save(cfg.poster_png, quality=95)
+        info(f"saved {cfg.poster_png.name}")
