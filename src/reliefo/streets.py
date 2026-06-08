@@ -16,10 +16,34 @@ import rasterio
 from ._util import info, run, step
 from .config import Config
 
-OVERPASS = "https://overpass-api.de/api/interpreter"
+OVERPASS_ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+]
 UA = "reliefo/0.2 (relief poster generator; +https://github.com/Sekinal/reliefo)"
 MAJOR = ("motorway", "trunk", "primary", "secondary", "tertiary",
          "motorway_link", "trunk_link", "primary_link", "secondary_link")
+
+
+def _overpass_query(q: str):
+    """POST a query, retrying across mirrors on overload (429/5xx/timeout)."""
+    import time
+    last = "?"
+    for attempt in range(6):
+        ep = OVERPASS_ENDPOINTS[attempt % len(OVERPASS_ENDPOINTS)]
+        try:
+            r = httpx.post(ep, data={"data": q}, headers={"User-Agent": UA},
+                           timeout=300.0)
+            if r.status_code in (429, 502, 503, 504):
+                last = f"HTTP {r.status_code}"
+            else:
+                r.raise_for_status()
+                return r
+        except httpx.HTTPError as e:                # noqa: PERF203
+            last = str(e)
+        time.sleep(8 * (attempt + 1))
+    raise RuntimeError(f"Overpass unavailable after retries ({last})")
 
 
 def _overpass_geojson(cfg: Config) -> object:
@@ -31,9 +55,7 @@ def _overpass_geojson(cfg: Config) -> object:
          f"way{filt}({bb.south},{bb.west},{bb.north},{bb.east});"
          f"out geom;")
     info("querying Overpass for highways …")
-    r = httpx.post(OVERPASS, data={"data": q}, headers={"User-Agent": UA},
-                   timeout=300.0)
-    r.raise_for_status()
+    r = _overpass_query(q)
     feats = []
     for el in r.json().get("elements", []):
         geom = el.get("geometry")
