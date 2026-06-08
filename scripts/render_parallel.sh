@@ -9,9 +9,13 @@ UV=~/.local/bin/uv
 RES=${RES:-8000}; SAMP=${SAMP:-512}; SUB=${SUB:-6000}; J=${J:-3}
 Q="--res $RES --samples $SAMP --subdiv $SUB --skip-dem"
 
-CITIES=(xalapa cordoba orizaba coatzacoalcos poza_rica boca_del_rio minatitlan \
-        tuxpan san_andres_tuxtla papantla coatepec perote catemaco huatusco \
-        zongolica xico veracruz)
+if [ $# -gt 0 ]; then
+  CITIES=("$@")
+else
+  CITIES=(xalapa cordoba orizaba coatzacoalcos poza_rica boca_del_rio minatitlan \
+          tuxpan san_andres_tuxtla papantla coatepec perote catemaco huatusco \
+          zongolica xico veracruz)
+fi
 
 render_one() {
   local slug=$1 cfg="examples/$1.toml"
