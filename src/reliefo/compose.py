@@ -134,11 +134,18 @@ def color_legend(img, S, vmin, vmax, palette):
             SOFT, ls=6 * S, anchor="ma")
     fnt = f(17 * S, "l")
     span = max(vmax - vmin, 1.0)
-    for e in range(int(math.ceil(vmin / 300) * 300), int(vmax) + 1, 300):
+    # adaptive "nice" tick interval (~4 ticks) so flat coastal cities aren't
+    # left with a single label and tall ranges aren't overcrowded
+    raw = span / 4
+    mag = 10 ** math.floor(math.log10(raw))
+    step = next(mu * mag for mu in (1, 2, 2.5, 5, 10) if raw <= mu * mag)
+    e = math.ceil(vmin / step) * step
+    while e <= vmax + 1e-6:
         y = y0 + (1 - (e - vmin) / span) * bh
         d.line([(x0 - 8 * S, y), (x0 - 1, y)], fill=SOFT, width=max(1, int(S)))
-        tracked(d, (x0 - 14 * S, y - fnt.size / 2), f"{e:,}".replace(",", " "),
+        tracked(d, (x0 - 14 * S, y - fnt.size / 2), f"{int(e):,}".replace(",", " "),
                 fnt, SOFT, ls=1 * S, anchor="ra")
+        e += step
     tracked(d, (x0 + bw / 2, y0 + bh + 12 * S), "m s. n. m.", f(13 * S, "i"),
             SOFT, ls=1 * S, anchor="ma")
 
