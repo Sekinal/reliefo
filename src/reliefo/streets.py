@@ -25,8 +25,10 @@ MAJOR = ("motorway", "trunk", "primary", "secondary", "tertiary",
 def _overpass_geojson(cfg: Config) -> object:
     """Download highways in the bbox from Overpass -> a GeoJSON lines file."""
     bb = cfg.map.bbox
-    q = (f"[out:json][timeout:180];"
-         f'way["highway"]({bb.south},{bb.west},{bb.north},{bb.east});'
+    filt = ('["highway"~"motorway|trunk|primary|secondary"]'
+            if cfg.streets.major_only else '["highway"]')
+    q = (f"[out:json][timeout:300];"
+         f"way{filt}({bb.south},{bb.west},{bb.north},{bb.east});"
          f"out geom;")
     info("querying Overpass for highways …")
     r = httpx.post(OVERPASS, data={"data": q}, headers={"User-Agent": UA},

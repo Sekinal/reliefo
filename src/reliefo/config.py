@@ -93,6 +93,7 @@ class StreetsCfg(BaseModel):
     model_config = ConfigDict(extra="forbid")
     enabled: bool = False
     osm_file: Path | None = None               # pre-downloaded OSM lines; else Overpass
+    major_only: bool = False                   # only big roads (for state-scale maps)
     minor_strength: float = 0.30               # faint grid
     major_strength: float = 0.70               # brighter arterials
     glow: float = 4.0                          # Blender emission multiplier

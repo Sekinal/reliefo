@@ -1,0 +1,17 @@
+{ "type": "FeatureCollection", "features": [
+{ "type": "Feature", "properties": { "name": "Xalapa" }, "geometry": { "type": "Point", "coordinates": [-96.9170, 19.5285] } },
+{ "type": "Feature", "properties": { "name": "Veracruz" }, "geometry": { "type": "Point", "coordinates": [-96.1342, 19.1903] } },
+{ "type": "Feature", "properties": { "name": "Córdoba" }, "geometry": { "type": "Point", "coordinates": [-96.9332, 18.8941] } },
+{ "type": "Feature", "properties": { "name": "Orizaba" }, "geometry": { "type": "Point", "coordinates": [-97.0992, 18.8511] } },
+{ "type": "Feature", "properties": { "name": "Coatzacoalcos" }, "geometry": { "type": "Point", "coordinates": [-94.4181, 18.1372] } },
+{ "type": "Feature", "properties": { "name": "Poza Rica" }, "geometry": { "type": "Point", "coordinates": [-97.4593, 20.5331] } },
+{ "type": "Feature", "properties": { "name": "Minatitlán" }, "geometry": { "type": "Point", "coordinates": [-94.5463, 17.9910] } },
+{ "type": "Feature", "properties": { "name": "Tuxpan" }, "geometry": { "type": "Point", "coordinates": [-97.4061, 20.9571] } },
+{ "type": "Feature", "properties": { "name": "Papantla" }, "geometry": { "type": "Point", "coordinates": [-97.3200, 20.4470] } },
+{ "type": "Feature", "properties": { "name": "San Andrés Tuxtla" }, "geometry": { "type": "Point", "coordinates": [-95.2130, 18.4480] } },
+{ "type": "Feature", "properties": { "name": "Acayucan" }, "geometry": { "type": "Point", "coordinates": [-94.9140, 17.9490] } },
+{ "type": "Feature", "properties": { "name": "Martínez de la Torre" }, "geometry": { "type": "Point", "coordinates": [-97.0610, 20.0660] } },
+{ "type": "Feature", "properties": { "name": "Pánuco" }, "geometry": { "type": "Point", "coordinates": [-98.1810, 22.0520] } },
+{ "type": "Feature", "properties": { "name": "Perote" }, "geometry": { "type": "Point", "coordinates": [-97.2420, 19.5620] } },
+{ "type": "Feature", "properties": { "name": "Cosamaloapan" }, "geometry": { "type": "Point", "coordinates": [-95.7990, 18.3670] } }
+] }

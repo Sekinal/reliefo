@@ -29,6 +29,15 @@ exaggeration = 6.0    # state scale -> more VE (terrain-per-pixel is gentle)
 sun_energy   = 2.0    # flat map -> dim, color-dominant lighting
 sky          = 0.22
 
+[streets]
+enabled    = true
+major_only = true     # only big highways at state scale
+
+[labels]
+enabled = true
+source  = "file"      # major cities, not colonias
+file    = "veracruz_cities.geojson"
+
 [render]
 resolution = 4000
 samples    = 140
