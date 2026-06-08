@@ -23,6 +23,7 @@ def _write_render_cfg(cfg: Config) -> None:
         "sun_altitude": cfg.relief.sun_altitude,
         "sun_energy": cfg.relief.sun_energy,
         "cam_tilt": cfg.relief.cam_tilt,
+        "solidify": cfg.relief.solidify,
         "streets_glow": cfg.streets.glow,
         "emission_color": list(EMISSION_COLOR),
     }))

@@ -51,7 +51,7 @@ def clear():
 
 
 def make_terrain():
-    sx = min(meta["width"], 3200)
+    sx = min(meta["width"], CFG.get("subdiv_max", 3200))
     sy = int(round(sx * H_km / W_km))
     bpy.ops.mesh.primitive_grid_add(x_subdivisions=sx, y_subdivisions=sy, size=1.0)
     g = bpy.context.active_object
@@ -87,10 +87,12 @@ def make_terrain():
     bpy.ops.object.modifier_apply(modifier=mm.name)
     bpy.ops.object.shade_smooth()
 
-    sol = g.modifiers.new("sol", "SOLIDIFY")
-    sol.thickness = 0.4
-    sol.offset = -1.0
-    bpy.ops.object.modifier_apply(modifier=sol.name)
+    sol_thick = CFG.get("solidify", 0.4)
+    if sol_thick > 0:
+        sol = g.modifiers.new("sol", "SOLIDIFY")
+        sol.thickness = sol_thick
+        sol.offset = -1.0
+        bpy.ops.object.modifier_apply(modifier=sol.name)
     g.location.z = 0.55
     return g
 

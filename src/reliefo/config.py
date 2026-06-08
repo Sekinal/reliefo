@@ -83,6 +83,9 @@ class ReliefCfg(BaseModel):
     sun_altitude: float = 42.0
     sun_energy: float = 3.8
     cam_tilt: float = 9.0
+    # plate thickness (km). Kept thin: a thick solidify self-intersects at the
+    # displaced municipio boundary and erupts into "tower" flap artifacts.
+    solidify: float = 0.1
 
 
 class StreetsCfg(BaseModel):
