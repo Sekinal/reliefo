@@ -129,7 +129,6 @@ palette = "oslo"
 
 [streets]
 enabled  = true
-osm_file = "../data/mexico.osm.pbf"
 
 [labels]
 enabled   = true

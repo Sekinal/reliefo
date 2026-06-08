@@ -51,8 +51,15 @@ def clear():
 
 
 def make_terrain():
-    sx = min(meta["width"], CFG.get("subdiv_max", 3200))
-    sy = int(round(sx * H_km / W_km))
+    # cap the LARGER grid dimension (keeps tall/portrait plates from ballooning
+    # to ~2x the vertices and running the render out of memory)
+    cap = CFG.get("subdiv_max", 3000)
+    if W_km >= H_km:
+        sx = min(meta["width"], cap)
+        sy = int(round(sx * H_km / W_km))
+    else:
+        sy = min(meta["height"], cap)
+        sx = int(round(sy * W_km / H_km))
     bpy.ops.mesh.primitive_grid_add(x_subdivisions=sx, y_subdivisions=sy, size=1.0)
     g = bpy.context.active_object
     g.scale = (W_km, H_km, 1.0)
